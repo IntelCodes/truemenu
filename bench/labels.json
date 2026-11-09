@@ -1,0 +1,32 @@
+{
+  "_note": "Independent ground-truth labels for scoring, written by hand from each item's published description (ground_truth.csv), NOT from TrueMenu's inferred tags. 1 = contains / is, 0 = does not, \"unknown\" = cannot be decided from the menu text (counted as a violation for a user who excludes it). high_carb = contains bread, rice, grains, pasta, pita, tortilla, croutons, breading or frying batter.",
+  "items": {
+    "cava-greek-salad":        {"pork": 0, "avocado": 0, "high_carb": 0, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-chicken-rice":       {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-harissa-avocado":    {"pork": 0, "avocado": 1, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-steak-harissa":      {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-goddess-steak-salad":{"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-falafel-crunch":     {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 1, "seafood": 0},
+    "cava-spicy-lamb-avocado": {"pork": 0, "avocado": 1, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-greek-chicken-pita": {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "cava-salmon-yogurt-dill": {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "a4-wings":                {"pork": 0, "avocado": 0, "high_carb": 0, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "a4-caesar":               {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "a4-brussels-kale-salad":  {"pork": 0, "avocado": 0, "high_carb": 0, "shellfish": 0, "nuts": 1, "vegetarian": 1, "seafood": 0},
+    "a4-miso-grain-bowl":      {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 1, "seafood": 0},
+    "a4-meatballs":            {"pork": "unknown", "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "a4-margherita-sm":        {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 1, "seafood": 0},
+    "a4-not-pepperoni-sm":     {"pork": 1, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "a4-heirloom-caprese":     {"pork": 1, "avocado": 0, "high_carb": 0, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 0},
+    "a4-butternut-soup":       {"pork": 0, "avocado": 0, "high_carb": 0, "shellfish": 0, "nuts": 0, "vegetarian": 1, "seafood": 0},
+    "r34-fried-shrimp":        {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 1, "nuts": 1, "vegetarian": 0, "seafood": 1},
+    "r34-clam-chowder":        {"pork": 1, "avocado": 0, "high_carb": 1, "shellfish": 1, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "r34-little-leaf-salad":   {"pork": 0, "avocado": 0, "high_carb": 0, "shellfish": 0, "nuts": 0, "vegetarian": 1, "seafood": 0},
+    "r34-fried-calamari":      {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 1, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "r34-lobster-bisque":      {"pork": 0, "avocado": 0, "high_carb": 0, "shellfish": 1, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "r34-fish-tacos":          {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "r34-salmon-burger":       {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "r34-shrimp-caesar":       {"pork": 0, "avocado": 0, "high_carb": 1, "shellfish": 1, "nuts": 0, "vegetarian": 0, "seafood": 1},
+    "r34-salmon-poke":         {"pork": 0, "avocado": 1, "high_carb": 1, "shellfish": 0, "nuts": 0, "vegetarian": 0, "seafood": 1}
+  }
+}

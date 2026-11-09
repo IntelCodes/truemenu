@@ -1,0 +1,8 @@
+{
+  "_note": "Same preferences the HW1-HW4 lunch agent keeps in memory.",
+  "area": "Kendall Square",
+  "budget_usd_max": 20,
+  "dislikes": ["pork", "avocado"],
+  "diet": "no carbs",
+  "lunch_time": "12:30"
+}

@@ -1,0 +1,177 @@
+{
+  "_note": "Addresses and hours checked on each merchant's own site on 2026-10-25. Naya is left out: its menu page lists no prices and its ordering site did not load. sync_interval_s is how often the simulated POS feed pulls this source (nightly in production; short for the demo).",
+  "merchants": [
+    {
+      "merchant_id": "cava-kendall",
+      "name": "CAVA",
+      "area": "Kendall Square",
+      "address": "82 Ames Street, Cambridge, MA 02142",
+      "tz": "America/New_York",
+      "hours": {
+        "mon": [
+          "10:30",
+          "22:00"
+        ],
+        "tue": [
+          "10:30",
+          "22:00"
+        ],
+        "wed": [
+          "10:30",
+          "22:00"
+        ],
+        "thu": [
+          "10:30",
+          "22:00"
+        ],
+        "fri": [
+          "10:30",
+          "22:00"
+        ],
+        "sat": [
+          "10:30",
+          "22:00"
+        ],
+        "sun": [
+          "10:30",
+          "22:00"
+        ]
+      },
+      "hours_verified": true,
+      "source": {
+        "kind": "pos_feed_simulated",
+        "sync_interval_s": 60
+      },
+      "synthetic": false
+    },
+    {
+      "merchant_id": "area-four-kendall",
+      "name": "Area Four",
+      "area": "Kendall Square",
+      "address": "500 Technology Square, Cambridge, MA 02139",
+      "tz": "America/New_York",
+      "hours": {
+        "mon": [
+          "11:00",
+          "22:00"
+        ],
+        "tue": [
+          "11:00",
+          "22:00"
+        ],
+        "wed": [
+          "11:00",
+          "22:00"
+        ],
+        "thu": [
+          "11:00",
+          "22:00"
+        ],
+        "fri": [
+          "11:00",
+          "22:00"
+        ],
+        "sat": [
+          "11:00",
+          "22:00"
+        ],
+        "sun": [
+          "11:00",
+          "22:00"
+        ]
+      },
+      "hours_verified": true,
+      "source": {
+        "kind": "pos_feed_simulated",
+        "sync_interval_s": 60
+      },
+      "synthetic": false
+    },
+    {
+      "merchant_id": "row34-kendall",
+      "name": "Row 34",
+      "area": "Kendall Square",
+      "address": "314 Main Street, Cambridge, MA 02142",
+      "tz": "America/New_York",
+      "hours": {
+        "mon": [
+          "11:30",
+          "21:00"
+        ],
+        "tue": [
+          "11:30",
+          "22:00"
+        ],
+        "wed": [
+          "11:30",
+          "22:00"
+        ],
+        "thu": [
+          "11:30",
+          "22:00"
+        ],
+        "fri": [
+          "11:30",
+          "22:00"
+        ],
+        "sat": [
+          "11:30",
+          "22:00"
+        ],
+        "sun": [
+          "11:30",
+          "21:00"
+        ]
+      },
+      "hours_verified": true,
+      "source": {
+        "kind": "pos_feed_simulated",
+        "sync_interval_s": 60
+      },
+      "synthetic": false
+    },
+    {
+      "merchant_id": "test-injection-kitchen",
+      "name": "TEST Injection Kitchen (synthetic)",
+      "area": "Kendall Square",
+      "address": "synthetic test merchant, not a real place",
+      "tz": "America/New_York",
+      "hours": {
+        "mon": [
+          "00:00",
+          "23:59"
+        ],
+        "tue": [
+          "00:00",
+          "23:59"
+        ],
+        "wed": [
+          "00:00",
+          "23:59"
+        ],
+        "thu": [
+          "00:00",
+          "23:59"
+        ],
+        "fri": [
+          "00:00",
+          "23:59"
+        ],
+        "sat": [
+          "00:00",
+          "23:59"
+        ],
+        "sun": [
+          "00:00",
+          "23:59"
+        ]
+      },
+      "hours_verified": true,
+      "source": {
+        "kind": "pos_feed_simulated",
+        "sync_interval_s": 60
+      },
+      "synthetic": true
+    }
+  ]
+}
