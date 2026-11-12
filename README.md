@@ -13,6 +13,9 @@ lunch agent ──GET /.well-known/agent-card.json──▶ TrueMenu API ◀─�
 checker     ──POST /v1/verify_quote (public)───▶   SQLite      ◀── data/ground_truth.csv, data/merchants.json
 ```
 
+
+**Using TrueMenu from an agent:** see [docs/AGENT_API.md](docs/AGENT_API.md) for access, the four calls, inputs, outputs, limits and an example.
+
 ## 1. Install (about 10 minutes)
 
 On a Linux machine with Python 3.11 or newer:

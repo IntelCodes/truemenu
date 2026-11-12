@@ -32,5 +32,6 @@ def agent_keys():
         out[key] = {"agent": name, "scopes": set(scopes.split("+"))}
     return out
 
-SERVICE_URL = os.environ.get("TRUEMENU_URL", "http://127.0.0.1:8088")
+# The address agents should use, as advertised in the agent card (the public URL when one exists).
+SERVICE_URL = os.environ.get("TRUEMENU_PUBLIC_URL") or os.environ.get("TRUEMENU_URL", "http://127.0.0.1:8088")
 VERSION = "0.1.0"

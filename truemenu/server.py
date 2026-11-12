@@ -3,15 +3,89 @@
 Run:  uvicorn truemenu.server:app --host 127.0.0.1 --port 8088
 Discovery: GET /.well-known/agent-card.json
 """
+import json
+import os
+import threading
+import time
+from collections import defaultdict, deque
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import List, Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from . import config, db, query
 
 app = FastAPI(title="TrueMenu", version=config.VERSION)
 db.init()
+
+# Request log: one JSON line per API call (agent name, never the key), so a client's use of the
+# service can be reviewed afterwards. Bodies are capped; responses are summarised, not stored whole.
+REQUEST_LOG = Path(os.environ.get("TRUEMENU_REQUEST_LOG", config.ROOT / "logs" / "requests.jsonl"))
+RATE_LIMIT_PER_MIN = int(os.environ.get("TRUEMENU_RATE_LIMIT_PER_MIN", "60"))
+_hits = defaultdict(deque)
+_log_lock = threading.Lock()
+
+
+def _summary(path, data):
+    if not isinstance(data, dict):
+        return None
+    if "detail" in data:
+        return {"detail": data["detail"]}
+    if path.endswith("/find_items"):
+        return {"count": data.get("count"), "dropped": data.get("dropped"),
+                "items": [{"item_id": r.get("item_id"), "price": (r.get("price") or {}).get("amount"),
+                           "freshness": (r.get("freshness") or {}).get("label"),
+                           "quoted": bool(r.get("quote_id")),
+                           "refused": r.get("quote_refused_reason")} for r in data.get("results", [])]}
+    if path.endswith("/verify_quote"):
+        return {k: data.get(k) for k in ("verdict", "valid_signature", "item_id", "quoted_price",
+                                          "current_price", "reason") if k in data}
+    return {k: data[k] for k in list(data)[:6] if not isinstance(data[k], (list, dict))}
+
+
+@app.middleware("http")
+async def log_and_limit(request: Request, call_next):
+    key = request.headers.get("x-agent-key") or ""
+    info = config.agent_keys().get(key)
+    who = info["agent"] if info else ("anonymous" if not key else "unknown-key")
+    client = request.headers.get("x-forwarded-for", request.client.host if request.client else "?").split(",")[0]
+    bucket = _hits[who if info else f"ip:{client}"]
+    now = time.time()
+    while bucket and now - bucket[0] > 60:
+        bucket.popleft()
+    body = await request.body()
+    if len(bucket) >= RATE_LIMIT_PER_MIN:
+        response, data = JSONResponse({"detail": "rate limit exceeded"}, status_code=429), None
+    else:
+        bucket.append(now)
+        response = await call_next(request)
+        data = None
+        if response.headers.get("content-type", "").startswith("application/json"):
+            raw = b"".join([chunk async for chunk in response.body_iterator])
+            try:
+                data = json.loads(raw or b"null")
+            except ValueError:
+                data = None
+            response = JSONResponse(content=data, status_code=response.status_code,
+                                    headers={k: v for k, v in response.headers.items()
+                                             if k.lower() not in ("content-length", "content-type")})
+    if request.url.path.startswith(("/v1/", "/.well-known/")):
+        try:
+            req_json = json.loads(body) if body else None
+        except ValueError:
+            req_json = body[:500].decode("utf-8", "replace")
+        line = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "agent": who,
+                "method": request.method, "path": request.url.path, "status": response.status_code,
+                "request": req_json, "response": _summary(request.url.path, data),
+                "user_agent": request.headers.get("user-agent", "")[:120]}
+        with _log_lock:
+            REQUEST_LOG.parent.mkdir(parents=True, exist_ok=True)
+            with open(REQUEST_LOG, "a") as f:
+                f.write(json.dumps(line) + "\n")
+    return response
 
 
 def agent_for(scope):
