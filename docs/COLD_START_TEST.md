@@ -29,3 +29,18 @@ A **useful result** meets 1 to 5. A correct refusal (nothing confirmable, with t
 
 - **Interface limitation:** the docs or the API led the agent wrong, for example a field it could not express or a response it misread.
 - **Test-setup problem:** network, key, rate limit or service outage, visible in the request log as missing calls, 401, 429 or 5xx.
+
+## Fallback client (added 2026-11-16, before that run)
+
+Marlon had not run the test by 2026-11-16, two days before the deadline. The cold start is therefore also run as a
+**self-run fresh agent session**, disclosed as such:
+
+- **Client:** `coldstart/agent.py`, a generic agent with one tool (HTTP GET/POST) and no TrueMenu-specific code,
+  driven by a language model through an OpenAI-compatible API. It receives only the task above (`coldstart/task.txt`),
+  the raw docs URL, the base URL and a read key (`coldstart-fresh`), and decides every request itself.
+- **Manual help:** none during the run. Shahaleel starts it with one command and does not intervene.
+- **Not independent:** the harness and TrueMenu were written by the same team, which is why the harness is kept generic
+  and is published here for inspection. ATL is not available to this client, so the pay decision is the agent's own.
+- **Scoring:** `coldstart/score.py` applies checks 1 to 5 above to the transcript; check 4 is also confirmed by reading.
+
+If Marlon runs it later, his run is reported separately as the independent run.
