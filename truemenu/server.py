@@ -16,10 +16,11 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from . import config, db, query
+from . import booth, config, db, query
 
 app = FastAPI(title="TrueMenu", version=config.VERSION)
 db.init()
+app.include_router(booth.router)
 
 # Request log: one JSON line per API call (agent name, never the key), so a client's use of the
 # service can be reviewed afterwards. Bodies are capped; responses are summarised, not stored whole.

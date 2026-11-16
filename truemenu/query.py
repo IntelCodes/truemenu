@@ -176,7 +176,7 @@ def _coverage(near, merchants, include_synth=False):
     if not supported:
         out["message"] = (f"TrueMenu has no restaurant data for '{near}'. Covered areas: {listed}. "
                           "Tell the user this area is not covered. Do not search another area "
-                          "or recommend a dish from one unless the user agrees.")
+                          "or recommend a dish from one unless the user agrees. Do not pay.")
     return out
 
 

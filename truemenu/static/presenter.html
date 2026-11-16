@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrueMenu presenter</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#F6F5F0;--ink:#192736;--muted:#4A5462;--line:#D9DCD6;--green:#1E7A4C;--amber:#9A5B00;--red:#B42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.4 Inter,system-ui,Arial,sans-serif}
+main{max-width:1280px;margin:0 auto;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:24px}
+h1{font:700 26px "Space Grotesk",Arial,sans-serif;margin:0 0 4px;grid-column:1/-1}
+h2{font:700 18px "Space Grotesk",Arial,sans-serif;margin:0 0 12px}
+section{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:18px}
+.m{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.m:last-child{border-bottom:0}
+.m .n{font-weight:600;flex:1}
+.pill{font:700 12px "Space Grotesk",Arial,sans-serif;letter-spacing:.06em;padding:5px 10px;border-radius:999px;color:#fff;min-width:74px;text-align:center}
+.fresh{background:var(--green)}.aging{background:var(--amber)}.stale{background:var(--red)}
+button{min-height:40px;padding:0 14px;border:1.5px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);font:600 14px Inter,Arial,sans-serif;cursor:pointer}
+button.primary{background:var(--ink);color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.items{max-height:420px;overflow:auto}
+.it{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.it span:first-child{flex:1}.it .p{font-weight:600;min-width:64px;text-align:right}
+.changed{color:var(--red)}
+.ev{padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.ev time{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
+.k-paid{color:var(--green);font-weight:600}.k-blocked{color:var(--red);font-weight:600}
+.age{color:var(--muted);font-variant-numeric:tabular-nums;min-width:56px;text-align:right}
+</style>
+</head>
+<body>
+<main>
+  <h1>TrueMenu · presenter controls</h1>
+  <section>
+    <h2>Restaurant feeds</h2>
+    <div id="merchants"></div>
+    <div class="row">
+      <button id="pauseall">Pause all feeds</button>
+      <button class="primary" id="reset">Reset demo</button>
+    </div>
+  </section>
+  <section>
+    <h2>Change a price (the restaurant's system reports it at once)</h2>
+    <div class="items" id="items"></div>
+  </section>
+  <section style="grid-column:1/-1">
+    <h2>What visitors' agents just did</h2>
+    <div id="events"></div>
+  </section>
+</main>
+<script>
+const token = new URLSearchParams(location.search).get('t') || '';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+async function act(body) {
+  const r = await fetch('/demo/api/presenter', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({token, ...body})});
+  if (!r.ok) alert((await r.json().catch(() => ({}))).detail || r.statusText);
+  refresh();
+}
+async function refresh() {
+  const s = await fetch('/demo/api/status').then((r) => r.json());
+  $('merchants').innerHTML = s.merchants.map((m) => `<div class="m"><span class="n">${esc(m.name)}</span>
+    <span class="age">${m.freshness.age_s}s</span><span class="pill ${m.freshness.label}">${m.freshness.label.toUpperCase()}</span>
+    <button data-a="${m.paused ? 'resume' : 'pause'}" data-m="${esc(m.merchant_id)}">${m.paused ? 'Resume feed' : 'Pause feed'}</button></div>`).join('');
+  const names = Object.fromEntries(s.merchants.map((m) => [m.merchant_id, m.name]));
+  $('items').innerHTML = s.items.map((i) => `<div class="it"><span>${esc(i.name)} <small style="color:#4A5462">· ${esc(names[i.merchant_id] || '')}</small></span>
+    <span class="p ${s.price_overrides[i.item_id] ? 'changed' : ''}">$${i.price.toFixed(2)}</span>
+    <button data-a="raise_price" data-i="${esc(i.item_id)}">+$2</button></div>`).join('');
+  $('events').innerHTML = s.events.map((e) => `<div class="ev"><time>${new Date(e.at).toLocaleTimeString()}</time><span class="k-${e.kind}">${esc(e.text)}</span></div>`).join('') || '<div class="ev">No activity yet.</div>';
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  act({action: b.dataset.a, merchant_id: b.dataset.m, item_id: b.dataset.i});
+});
+$('pauseall').onclick = () => act({action: 'pause_all'});
+$('reset').onclick = () => act({action: 'reset'});
+refresh(); setInterval(refresh, 2000);
+</script>
+</body>
+</html>

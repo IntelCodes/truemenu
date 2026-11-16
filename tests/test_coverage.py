@@ -37,6 +37,7 @@ class CoverageTest(unittest.TestCase):
         self.assertEqual(cov["covered_areas"], ["Kendall Square"])
         self.assertIn("not covered", cov["message"])
         self.assertIn("Do not search another area", cov["message"])
+        self.assertIn("Do not pay", cov["message"])
 
     def test_covered_area_still_returns_quoted_dishes(self):
         out = query.find_items({**ASK, "near": "Kendall Square"}, "test")
