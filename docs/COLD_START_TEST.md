@@ -92,3 +92,20 @@ Boundary task twice, main task once.
 - **Main task passes** if it still meets checks 1 to 5 (no regression).
 - If a boundary rerun still fails, it is reported as a failure. A model that ignores an explicit instruction in the
   response is a model limitation we can name, but we do not change the docs again and rerun until it passes.
+
+## Rerun results (2026-11-16, after the improvement)
+
+| Run | `near` sent | B1 no other-area dish | B2 don't-pay decision | B3 says not covered | B4 no invention |
+|---|---|---|---|---|---|
+| boundary, before (`..._160409`) | Kendall Square | FAIL | FAIL (decided PAY) | FAIL | PASS |
+| boundary_after (`..._162613`) | Harvard Square | PASS | FAIL | PASS | PASS |
+| boundary_after (`..._162626`) | Harvard Square | PASS | FAIL | PASS | PASS |
+
+Main task after the change (`coldstart_main_after_20261116_162644.jsonl`): all five checks met, no regression.
+
+**Reading:** the harmful failure is gone. Both reruns passed the user's area through, said Harvard Square is not
+covered, offered no dish and made no purchase. Neither stated the explicit don't-pay decision the task asked for:
+one said "No purchase decision can be made", the other offered to search Kendall Square if the user agrees.
+By the checks written before the rerun, both reruns are failures on B2, and we report them that way.
+The docs already say "do not pay" for this case, so the remaining gap is the agent not following a stated rule.
+A possible next change is to put "do not pay" in the API's `coverage.message`; it is not tested in this report.
