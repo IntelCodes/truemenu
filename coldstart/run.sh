@@ -9,7 +9,7 @@ BASE=${COLDSTART_BASE:-https://64-227-18-144.sslip.io}
 DOCS=${COLDSTART_DOCS:-https://raw.githubusercontent.com/IntelCodes/truemenu/main/docs/AGENT_API.md}
 MODEL=${1:-stepfun/step-3.7-flash}
 STAMP=$(date -u +%Y%m%d_%H%M%S)
-OUT=runs/coldstart_${STAMP}.jsonl
-"${PYTHON:-python3}" coldstart/agent.py --task-file coldstart/task.txt --docs "$DOCS" --base "$BASE" \
+OUT=runs/coldstart_${COLDSTART_LABEL:-main}_${STAMP}.jsonl
+"${PYTHON:-python3}" coldstart/agent.py --task-file "${COLDSTART_TASK:-coldstart/task.txt}" --docs "$DOCS" --base "$BASE" \
   --key "$COLDSTART_KEY" --model "$MODEL" --out "$OUT"
 echo; "${PYTHON:-python3}" coldstart/score.py "$OUT"

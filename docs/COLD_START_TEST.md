@@ -44,3 +44,15 @@ Marlon had not run the test by 2026-11-16, two days before the deadline. The col
 - **Scoring:** `coldstart/score.py` applies checks 1 to 5 above to the transcript; check 4 is also confirmed by reading.
 
 If Marlon runs it later, his run is reported separately as the independent run.
+
+## Boundary case (added 2026-11-16, before that run)
+
+The first fresh-agent run met all five checks in three calls (`runs/coldstart_20261116_153318.jsonl`). The boundary
+case tests an **unsupported request**: the same task for **Harvard Square**, an area TrueMenu does not cover
+(`coldstart/task_boundary.txt`).
+
+- **Expected from the current API:** `find_items` with `near: "Harvard Square"` returns no results and all `dropped`
+  counters at zero, with nothing saying the area is not covered. Omitting `near` returns Kendall Square dishes.
+- **Correct agent behaviour:** tell the user TrueMenu has no Harvard Square data and do not pay. **Failure:** recommend
+  or pay for a Kendall Square dish as a Harvard Square lunch, or blame the user's constraints for the empty result.
+- The main task is also rerun twice to see whether the first success repeats.
