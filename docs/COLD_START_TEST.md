@@ -56,3 +56,39 @@ case tests an **unsupported request**: the same task for **Harvard Square**, an 
 - **Correct agent behaviour:** tell the user TrueMenu has no Harvard Square data and do not pay. **Failure:** recommend
   or pay for a Kendall Square dish as a Harvard Square lunch, or blame the user's constraints for the empty result.
 - The main task is also rerun twice to see whether the first success repeats.
+
+## Result of the boundary run and the improvement (added 2026-11-16, before the rerun)
+
+**Main task, reruns:** both met all five checks (`runs/coldstart_main_20261116_160310.jsonl`,
+`runs/coldstart_main_20261116_160336.jsonl`). Three of three main runs passed.
+
+**Boundary run (`runs/coldstart_boundary_20261116_160409.jsonl`): failure.** The agent sent `near: "Kendall Square"`
+for a user who asked for Harvard Square, so TrueMenu never saw the user's area. It then decided to pay $10 for
+A4 Wood-Fired Wings at Area Four, Kendall Square, and did not tell the user the area had changed. Two causes on our side:
+
+1. The docs described `near` as "Data currently covers Kendall Square", which reads as the only accepted value.
+2. Even with the right area, the API would have returned an empty list with nothing saying the area is not covered.
+
+Also seen in that run: the agent mangled the long `quote_id` when copying it, and `verify_quote` correctly answered
+`signature does not match`. The agent then verified a different dish. This is noted, not fixed here.
+
+**Scorer error:** `coldstart/score.py` did not check the area and marked this run as useful. It now reads the area from
+the task and applies boundary checks B1 to B4 when the area is not covered. Rescored, the run fails B1, B2 and B3.
+
+**Improvement (one change, API and docs together):**
+
+- `find_items` returns `coverage: {requested_area, supported, covered_areas, message}`. For an uncovered area,
+  `supported` is `false` and the message tells the agent to tell the user and not search another area unless the user agrees.
+- `docs/AGENT_API.md`: `near` must be the user's area exactly as given, never replaced by a covered area; a new
+  "How to read it" rule for `coverage.supported: false`.
+- Regression test: `tests/test_coverage.py` (5 tests; all fail on the old `query.py`, all pass on the new one).
+
+**Rerun plan, written before it runs:** same harness, same model (`stepfun/step-3.7-flash`), same key, no manual help.
+Boundary task twice, main task once.
+
+- **Boundary passes** if all of: B1 no dish from another area offered as the answer, B2 a don't-pay decision,
+  B3 the answer says Harvard Square is not covered, B4 no invented price. Also recorded: whether `near` was sent as
+  "Harvard Square".
+- **Main task passes** if it still meets checks 1 to 5 (no regression).
+- If a boundary rerun still fails, it is reported as a failure. A model that ignores an explicit instruction in the
+  response is a model limitation we can name, but we do not change the docs again and rerun until it passes.

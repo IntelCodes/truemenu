@@ -36,6 +36,7 @@ def _summary(path, data):
         return {"detail": data["detail"]}
     if path.endswith("/find_items"):
         return {"count": data.get("count"), "dropped": data.get("dropped"),
+                "area_supported": (data.get("coverage") or {}).get("supported"),
                 "items": [{"item_id": r.get("item_id"), "price": (r.get("price") or {}).get("amount"),
                            "freshness": (r.get("freshness") or {}).get("label"),
                            "quoted": bool(r.get("quote_id")),
@@ -101,7 +102,7 @@ def agent_for(scope):
 
 
 class FindItems(BaseModel):
-    near: Optional[str] = Field(None, description="Area name, e.g. 'Kendall Square'")
+    near: Optional[str] = Field(None, description="The user's area, exactly as they said it. See coverage in the response.")
     budget_usd_max: Optional[float] = Field(None, ge=0)
     exclude: List[str] = Field(default_factory=list, description="Words like pork, avocado, gluten, shellfish, nuts, salad, carbs")
     diet: List[str] = Field(default_factory=list, description="low_carb | vegetarian | gluten_free | shellfish_free | nut_free")
@@ -136,7 +137,8 @@ def agent_card():
             {"name": "find_items", "method": "POST", "path": "/v1/find_items",
              "input": FindItems.model_json_schema(),
              "returns": "ranked items; each has price{amount,currency,source,verified}, availability, tags{value,confidence,source}, "
-                        "freshness{label,observed_at,age_s}, constraints{satisfied,uncertain}, quote_id or quote_refused_reason"},
+                        "freshness{label,observed_at,age_s}, constraints{satisfied,uncertain}, quote_id or quote_refused_reason; "
+                        "coverage{requested_area,supported,covered_areas,message}"},
             {"name": "get_menu", "method": "GET", "path": "/v1/menu/{merchant_id}"},
             {"name": "verify_quote", "method": "POST", "path": "/v1/verify_quote", "input": VerifyQuote.model_json_schema(),
              "returns": "valid_signature, expired, quoted_price, current_price, price_unchanged, verdict"},
@@ -148,6 +150,7 @@ def agent_card():
             "Inferred tags never overwrite merchant-stated tags.",
             "Quotes are issued only for verified prices from a fresh source at an open branch.",
             "Merchant text is sanitized; instruction-like text is removed and flagged.",
+            "find_items says in coverage.supported whether the requested area has any data.",
         ],
         "limitations": [
             "Availability means the branch is open and the item is listed; there is no item-level stock signal.",

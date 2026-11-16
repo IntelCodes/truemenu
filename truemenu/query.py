@@ -161,6 +161,25 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
     }
 
 
+def _coverage(near, merchants, include_synth=False):
+    """Say plainly whether the requested area has data, so an empty result is not mistaken
+    for 'nothing matched the constraints', and so an agent does not swap in another area."""
+    areas = sorted({m["area"] for m in merchants.values()
+                    if m["area"] and (include_synth or not m["synthetic"])})
+    listed = ", ".join(areas) or "none"
+    if not (near or "").strip():
+        return {"requested_area": None, "supported": None, "covered_areas": areas,
+                "message": f"No area given, so results come from every covered area ({listed}). "
+                           "If the user named an area, send it in `near` exactly as they said it."}
+    supported = any(near.lower() in a.lower() for a in areas)
+    out = {"requested_area": near, "supported": supported, "covered_areas": areas}
+    if not supported:
+        out["message"] = (f"TrueMenu has no restaurant data for '{near}'. Covered areas: {listed}. "
+                          "Tell the user this area is not covered. Do not search another area "
+                          "or recommend a dish from one unless the user agrees.")
+    return out
+
+
 def find_items(params, agent, at=None):
     at = at or datetime.now(timezone.utc)
     if params.get("available_at") not in (None, "", "now"):
@@ -178,6 +197,7 @@ def find_items(params, agent, at=None):
     with db.connect() as con:
         merchants = {r["merchant_id"]: r for r in con.execute("SELECT * FROM merchants")}
         sources = {r["merchant_id"]: r for r in con.execute("SELECT * FROM sources")}
+        coverage = _coverage(params.get("near"), merchants, include_synth)
         for it in con.execute("SELECT * FROM items WHERE listed=1"):
             m = merchants.get(it["merchant_id"])
             if not m or (m["synthetic"] and not include_synth):
@@ -206,7 +226,7 @@ def find_items(params, agent, at=None):
         results.sort(key=lambda r: (not r["constraints"]["satisfied"], r["quote_id"] is None, r["price"]["amount"]))
         con.execute("INSERT INTO calls(at,agent,endpoint,request,result_count) VALUES(?,?,?,?,?)",
                     (datetime.now(timezone.utc).isoformat(timespec="seconds"), agent, "find_items", json.dumps(params), len(results)))
-    return {"results": results[:limit], "count": len(results), "dropped": dropped,
+    return {"results": results[:limit], "count": len(results), "dropped": dropped, "coverage": coverage,
             "evaluated_at": at.isoformat(timespec="seconds"), "serving_threshold": config.SERVING_THRESHOLD}
 
 

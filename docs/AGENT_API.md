@@ -25,7 +25,7 @@ Search dishes across restaurants with the user's constraints. This is the main c
 
 | Field | Type | Meaning |
 |---|---|---|
-| `near` | string | Area name. Data currently covers `"Kendall Square"` (Cambridge, MA). |
+| `near` | string | The user's area, **exactly as the user said it** (for example `"Harvard Square"`). Do not replace it with an area you know TrueMenu covers. The response tells you in `coverage` whether that area has data. |
 | `budget_usd_max` | number | Highest price in dollars. |
 | `exclude` | list of words | What the dish must not contain: `pork`, `avocado`, `gluten`, `shellfish`, `nuts`, `carbs`, `salad`. |
 | `diet` | list | Any of `low_carb`, `vegetarian`, `gluten_free`, `shellfish_free`, `nut_free`. |
@@ -56,17 +56,20 @@ Response, abridged:
   ],
   "count": 6,
   "dropped": {"over_budget": 2, "closed": 0, "violates_constraints": 19, "not_included": 0},
+  "coverage": {"requested_area": "Kendall Square", "supported": true,
+               "covered_areas": ["Kendall Square"]},
   "evaluated_at": "2026-11-16T12:30:00-05:00"
 }
 ```
 
 How to read it:
 
+- **`coverage.supported` false:** TrueMenu has no data for the area the user asked about, and `results` is empty for that reason, not because of the constraints. Tell the user the area is not covered and name the covered areas from `coverage.covered_areas`. Do not search another area or offer a dish from one unless the user agrees, and do not pay.
 - **`quote_id` present:** TrueMenu stands behind this price at this time. Show the user this item with this price.
 - **`quote_id` null:** read `quote_refused_reason` (for example, the source is stale or the branch is closed). Do not quote that price to a user as confirmed.
 - **`freshness.label`:** `fresh` or `aging` are normal. `stale` means TrueMenu has not heard from that restaurant for more than twice its normal update interval, so it will not sign quotes for it.
 - **`constraints.uncertain`:** constraints TrueMenu could not confirm from the menu text. Tell the user, or pick another dish.
-- **`results` empty:** nothing fits. `dropped` says why (over budget, closed, violates constraints, did not match `include`).
+- **`results` empty with `coverage.supported` true:** nothing fits. `dropped` says why (over budget, closed, violates constraints, did not match `include`).
 - `category` tells mains (`bowl`, `salad`, `plate`, `main`, `pita`, `pizza`) from `soup`, `starter` and `side`. Results are sorted by price, not by how good a lunch they are, so choosing is your job.
 
 ### 2. `GET /v1/menu/{merchant_id}` (key, scope `read`)
@@ -99,7 +102,7 @@ Report that a tag is wrong, for example a dish marked pork-free that contains po
 
 ## Limits
 
-- **Coverage:** three restaurants in Kendall Square (CAVA, Area Four, Row 34), 27 dishes with prices checked against each restaurant's own menu. Other areas return nothing.
+- **Coverage:** three restaurants in Kendall Square (CAVA, Area Four, Row 34), 27 dishes with prices checked against each restaurant's own menu. Any other area returns no results and `coverage.supported: false`.
 - **Data feed:** each restaurant's data comes through a simulated point-of-sale feed that updates every 15 seconds in this deployment.
 - **"Available" means** the restaurant is open and the dish is listed. There is no stock-level signal.
 - **Dietary tags** are rules plus a model run when data arrives, never at query time. Tags below 0.6 confidence are reported as `uncertain` instead of being used to filter.
@@ -132,4 +135,8 @@ curl -s -X POST "$BASE/v1/verify_quote" \
   -H "Content-Type: application/json" -d '{"quote_id":"tq1...."}'
 ```
 
-Tell the user the dish, the restaurant, the price and that the price was verified at that time, or that nothing could be confirmed and why.
+Tell the user the dish, the restaurant, the price and that the price was verified at that time, or that nothing could be confirmed and why. If the user asked about an area TrueMenu does not cover, say so instead of answering for a different area.
+
+## Changes
+
+- 2026-11-16: `find_items` now returns `coverage`, and `near` must be the user's own area. Added after a cold-start test in which an agent asked for Harvard Square got empty results, searched Kendall Square instead without telling the user, and decided to pay for a dish there.
