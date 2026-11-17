@@ -109,3 +109,21 @@ one said "No purchase decision can be made", the other offered to search Kendall
 By the checks written before the rerun, both reruns are failures on B2, and we report them that way.
 The docs already say "do not pay" for this case, so the remaining gap is the agent not following a stated rule.
 A possible next change is to put "do not pay" in the API's `coverage.message`; it is not tested in this report.
+
+## Independent run by another team (2026-11-17)
+
+Run by Marlon Pascoal and Geraldo Rodrigues with their own setup: Claude Code 2.1.326 in non-interactive mode,
+model `claude-opus-5-5`, a fresh empty folder, no project memory, only web fetch and `curl` allowed. ATL not
+connected. Inputs: the docs link, the base URL, the `atl-marlon` key and the task. One change to the task: the date
+moved to Wednesday, November 18, 2026 (Monday, November 16 had passed). No human input during the run.
+
+| Check | Result |
+|---|---|
+| 1 Valid dish | Pass: Greek Salad, CAVA, $12.25 (hand labels: no pork, not high carb; open Wednesday 12:30) |
+| 2 Correct price | Pass |
+| 3 Verified | Pass: `verify_quote` verdict `valid` |
+| 4 Result used | Pass: decided "don't pay now" because the 15-minute quote cannot prove Wednesday's price |
+| 5 No invention | Pass |
+
+New limitation found: a quote proves the price for 15 minutes from now, even when the search asks about a later
+meal time. Not fixed in this round. Their full report is included in the HW9 submission (Appendix B).
