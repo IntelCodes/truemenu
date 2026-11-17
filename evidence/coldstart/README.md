@@ -12,6 +12,7 @@ All runs are self-run with the generic harness in `coldstart/`; model `stepfun/s
 | `coldstart_boundary_after_20261116_162613.jsonl` | Harvard Square, after fix | B1, B3, B4 pass; B2 (explicit don't-pay) fail |
 | `coldstart_boundary_after_20261116_162626.jsonl` | Harvard Square, after fix | B1, B3, B4 pass; B2 fail |
 | `coldstart_main_after_20261116_162644.jsonl` | Main, after fix | 5/5 |
+| `server_request_log_atl-marlon.jsonl` | TrueMenu's own log for the key given to another team (independent run, 2026-11-17) | 1 `find_items` line at 16:20:35 UTC, matching their report: same request, 6 results. The only call ever made with that key. Their report is in the HW9 submission. |
 | `server_request_log_coldstart-fresh.jsonl` | TrueMenu's own log for the test key | 8 `find_items` lines: one per run plus one manual `curl` check of the deployed change (16:26:12). `verify_quote` is public and logged without a key. |
 
 Each transcript line is one event: `start` (task, docs URL, base URL), `model` (the model's output), `http`
