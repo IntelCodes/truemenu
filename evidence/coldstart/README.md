@@ -1,7 +1,7 @@
 # Cold-start evidence (HW9, 2026-11-16)
 
 Plan, checks and results: [docs/COLD_START_TEST.md](../../docs/COLD_START_TEST.md).
-All runs are self-run with the generic harness in `coldstart/`; model `stepfun/step-3.7-flash`; no manual help.
+The seven `coldstart_*` transcripts are self-runs with the generic harness in `coldstart/` (model `stepfun/step-3.7-flash`, no manual help). One independent run by another team (2026-11-17, their own Claude Code agent) is recorded in `server_request_log_atl-marlon.jsonl` and in their report, which is part of the HW9 submission. Note: in `coldstart_main_20261116_160310` the agent claims "ATL policy checks passed" without calling any ATL tool; check 5 (no invented dish or price) does not cover invented tool claims.
 
 | File | Task | Result (rescore with `python3 coldstart/score.py <file>`) |
 |---|---|---|
