@@ -1,0 +1,6 @@
+{"branch_id": "1002", "data_as_of": "2026-11-16T19:30:00Z", "server_time": "2026-11-16T20:00:00Z",
+ "items": [
+  {"item_id": "7001", "category": "Sandwich", "name_en": "Halloumi Sandwich", "name_ar": "ساندويتش حلوم",
+   "description_en": "Halloumi, tomato, mint, sourdough", "price": 2600, "currency": "SAR",
+   "vat_inclusive": true, "available": true, "calories": 540, "updated_at": "2026-11-01T08:00:00Z"}
+ ]}

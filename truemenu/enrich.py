@@ -127,7 +127,7 @@ def _llm_tags_batch(rows):
 
 
 def run(use_llm=True, only_items=None):
-    """Infer tags for items. Never touches merchant_stated or agent_feedback tags."""
+    """Infer tags for items. Never touches merchant_stated, agent_feedback or jurisdiction tags."""
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     with db.connect() as con:
         q = "SELECT item_id, name, description, category FROM items"
@@ -135,7 +135,7 @@ def run(use_llm=True, only_items=None):
         if only_items:
             rows = [r for r in rows if r[0] in only_items]
         protected = {(r["item_id"], r["tag"]) for r in con.execute(
-            "SELECT item_id, tag FROM tags WHERE source IN ('merchant_stated','agent_feedback')")}
+            "SELECT item_id, tag FROM tags WHERE source IN ('merchant_stated','agent_feedback') OR source LIKE 'jurisdiction:%'")}
         llm_out, model = ({}, None)
         if use_llm:
             try:
