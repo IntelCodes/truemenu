@@ -67,25 +67,55 @@ def freshness(source_row, at=None):
         label = "aging"
     else:
         label = "stale"
-    return {"label": label, "observed_at": source_row["last_pull_at"], "age_s": age,
-            "expected_interval_s": interval, "source": source_row["kind"],
-            "last_change_at": source_row["last_change_at"]}
+    out = {"label": label, "observed_at": source_row["last_pull_at"], "age_s": age,
+           "expected_interval_s": interval, "source": source_row["kind"],
+           "last_change_at": source_row["last_change_at"]}
+    if "merchant_data_as_of" in source_row.keys() and source_row["merchant_data_as_of"]:
+        out["merchant_data_as_of"] = source_row["merchant_data_as_of"]
+    return out
+
+
+# Fixed rates only: SAR is pegged to the US dollar at 3.75. Other currencies are not supported yet.
+USD_PER_UNIT = {"USD": 1.0, "SAR": 1 / 3.75}
+
+
+def to_usd(cents, currency):
+    return cents / 100 * USD_PER_UNIT.get(currency or "USD", 1.0)
+
+
+def _shifts(day_hours):
+    """Hours for one day: None, ["11:00","22:00"] or [["06:00","12:00"],["16:00","02:00"]]."""
+    if not day_hours:
+        return []
+    if isinstance(day_hours[0], str):
+        return [tuple(day_hours)]
+    return [tuple(x) for x in day_hours]
+
+
+def _within_hours(hours, local):
+    hm = local.strftime("%H:%M")
+    today, yesterday = DAYS[local.weekday()], DAYS[(local.weekday() - 1) % 7]
+    for o, c in _shifts(hours.get(today)):
+        if (o <= c and o <= hm <= c) or (o > c and hm >= o):      # o > c: closes after midnight
+            return True, [o, c]
+    for o, c in _shifts(hours.get(yesterday)):
+        if o > c and hm <= c:                                       # yesterday's late shift still running
+            return True, [o, c]
+    return False, None
 
 
 def branch_open(m, at):
     """Open = within posted hours AND the POS says the branch is taking orders."""
     local = at.astimezone(ZoneInfo(m["tz"]))
-    hours = json.loads(m["hours_json"]).get(DAYS[local.weekday()])
-    within = False
-    if hours:
-        o, c = hours
-        hm = local.strftime("%H:%M")
-        within = o <= hm <= c
+    hours = json.loads(m["hours_json"])
+    within, _ = _within_hours(hours, local)
+    shifts = _shifts(hours.get(DAYS[local.weekday()]))
     taking_orders = m["pos_status"] == "online"
     return {
         "open": bool(within and taking_orders),
         "within_hours": within, "pos_status": m["pos_status"],
-        "hours_today": hours, "hours_verified": bool(m["hours_verified"]),
+        "hours_today": (list(shifts[0]) if len(shifts) == 1 else [list(x) for x in shifts]) or None,
+        "hours_verified": bool(m["hours_verified"]),
         "basis": "posted hours + POS status; no item-level stock signal",
     }
 
@@ -127,6 +157,10 @@ def _check_constraints(name, tags, exclude, diet):
     return violations, uncertain
 
 
+def _get(row, key):
+    return row[key] if key in row.keys() else None
+
+
 def _serialize(con, it, m, src, at, agent, issue_quote):
     tags = _tags(con, it["item_id"])
     fr = freshness(src)            # freshness is always about now, not the requested meal time
@@ -151,8 +185,10 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
         "flags": json.loads(it["description_flags"] or "[]"),
         "merchant": {"id": m["merchant_id"], "name": m["name"], "area": m["area"], "address": m["address"], "synthetic": bool(m["synthetic"])},
         "price": {"amount": it["price_cents"] / 100, "currency": it["currency"], "source": "merchant_stated",
+                  "usd_equivalent": round(to_usd(it["price_cents"], it["currency"]), 2),
                   "verified": bool(it["price_verified"]), "verified_on": it["verified_on"] or None,
                   "changed_at": it["price_changed_at"]},
+        "name_ar": _get(it, "name_ar"), "calories": _get(it, "calories"),
         "availability": avail,
         "tags": tags,
         "freshness": fr,
@@ -207,7 +243,7 @@ def find_items(params, agent, at=None):
             if include and not _included(it, include):
                 dropped["not_included"] += 1
                 continue
-            if budget is not None and it["price_cents"] > float(budget) * 100:
+            if budget is not None and to_usd(it["price_cents"], it["currency"]) > float(budget) + 1e-9:
                 dropped["over_budget"] += 1
                 continue
             avail = branch_open(m, at)

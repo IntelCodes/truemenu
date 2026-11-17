@@ -25,7 +25,7 @@ import sys
 import time
 from datetime import datetime, timezone
 
-from . import config, db, enrich, sanitize
+from . import config, db, enrich, nugttah, sanitize
 
 
 def now_iso():
@@ -133,6 +133,13 @@ def loop():
     print(f"[feed] running, pid {os.getpid()}; intervals: " + ", ".join(f"{m['merchant_id']}={_interval(m)}s" for m in merchants), flush=True)
     try:
         while True:
+            if nugttah.configured() and time.time() - last.get("__nugttah__", 0) >= nugttah.interval():
+                last["__nugttah__"] = time.time()
+                try:
+                    ev = nugttah.pull()
+                    print(f"[feed] {now_iso()} pulled nugttah" + (f" changes {ev}" if ev else ""), flush=True)
+                except Exception as e:                  # a failed pull leaves the data to age into stale
+                    print(f"[feed] {now_iso()} nugttah pull failed: {e}", flush=True)
             due = [m["merchant_id"] for m in merchants if time.time() - last.get(m["merchant_id"], 0) >= _interval(m)]
             if due:
                 ev = pull(set(due))

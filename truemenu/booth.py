@@ -61,7 +61,7 @@ def _meal_time():
         return (at if at.tzinfo else at.replace(tzinfo=TZ)), "pinned"
     now = datetime.now(TZ)
     with db.connect() as con:
-        ms = [m for m in con.execute("SELECT * FROM merchants WHERE synthetic=0")]
+        ms = [m for m in con.execute("SELECT * FROM merchants WHERE synthetic=0 AND area LIKE ?", (f"%{AREA}%",))]
     if any(query.branch_open(m, now)["within_hours"] for m in ms):
         return now, "now"
     lunch = now.replace(hour=12, minute=30, second=0, microsecond=0)
@@ -151,7 +151,7 @@ def status(request: Request):
     now = datetime.now(timezone.utc)
     ov = feed._load_overrides()
     with db.connect() as con:
-        ms = {m["merchant_id"]: m for m in con.execute("SELECT * FROM merchants WHERE synthetic=0")}
+        ms = {m["merchant_id"]: m for m in con.execute("SELECT * FROM merchants WHERE synthetic=0 AND area LIKE ?", (f"%{AREA}%",))}
         srcs = {s["merchant_id"]: s for s in con.execute("SELECT * FROM sources")}
         items = [dict(item_id=i["item_id"], name=i["name"], merchant_id=i["merchant_id"], price=i["price_cents"] / 100)
                  for i in con.execute("SELECT * FROM items WHERE listed=1 ORDER BY merchant_id, name")
@@ -194,7 +194,8 @@ def presenter(body: PresenterAction):
             feed.pull([body.merchant_id])
     elif body.action == "pause_all":
         with db.connect() as con:
-            ov["paused_sources"] = [m["merchant_id"] for m in con.execute("SELECT merchant_id FROM merchants WHERE synthetic=0")]
+            ov["paused_sources"] = [m["merchant_id"] for m in con.execute(
+                "SELECT merchant_id FROM merchants WHERE synthetic=0 AND area LIKE ?", (f"%{AREA}%",))]
         feed._save_overrides(ov)
         _event("feed", "All restaurant feeds paused: data will go stale in 30 s")
     elif body.action == "reset":

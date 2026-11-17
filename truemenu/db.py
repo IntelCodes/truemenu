@@ -55,6 +55,20 @@ def connect():
         con.close()
 
 
+# Columns added after the first deployment; ALTER keeps existing databases working.
+MIGRATIONS = [
+    ("items", "name_ar", "TEXT"),
+    ("items", "calories", "INTEGER"),
+    ("merchants", "name_ar", "TEXT"),
+    ("merchants", "country", "TEXT"),
+    ("sources", "merchant_data_as_of", "TEXT"),
+]
+
+
 def init():
     with connect() as con:
         con.executescript(SCHEMA)
+        for table, col, typ in MIGRATIONS:
+            cols = {r[1] for r in con.execute(f"PRAGMA table_info({table})")}
+            if col not in cols:
+                con.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
