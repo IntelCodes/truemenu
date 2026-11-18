@@ -1,8 +1,11 @@
 {
- "server_time": "2026-11-16T20:00:00Z",
- "note": "SAMPLE DATA, not real merchants.",
- "branches": [],
- "items": [],
+ "statusCode": 200,
+ "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants.",
+ "server_time": "2026-11-16T20:00:00.000Z",
+ "data_as_of": "2026-11-16T19:55:00.000Z",
+ "has_more": false,
  "next_cursor": "c0",
- "has_more": false
+ "branches": [],
+ "categories": [],
+ "items": []
 }

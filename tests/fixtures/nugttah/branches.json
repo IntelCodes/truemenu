@@ -1,23 +1,308 @@
-{"server_time": "2026-11-16T20:00:00Z",
- "note": "SAMPLE DATA in the format requested from Nugttah. Not real merchants.",
- "branches": [
-  {"branch_id": "1001", "merchant_id": "501", "brand_name_en": "Sample Grill", "brand_name_ar": "مشويات تجريبية",
-   "branch_name_en": "Olaya", "city": "Riyadh", "district": "Al Olaya", "country": "SA",
-   "address_en": "King Fahd Road", "lat": 24.6911, "lng": 46.6853, "timezone": "Asia/Riyadh",
-   "opening_hours": {"sun": [{"open": "12:00", "close": "16:00"}, {"open": "18:00", "close": "02:00"}],
-                     "mon": [{"open": "12:00", "close": "16:00"}, {"open": "18:00", "close": "02:00"}],
-                     "tue": [{"open": "12:00", "close": "16:00"}, {"open": "18:00", "close": "02:00"}],
-                     "wed": [{"open": "12:00", "close": "16:00"}, {"open": "18:00", "close": "02:00"}],
-                     "thu": [{"open": "12:00", "close": "16:00"}, {"open": "18:00", "close": "02:00"}],
-                     "fri": [{"open": "13:30", "close": "02:00"}],
-                     "sat": [{"open": "12:00", "close": "02:00"}]},
-   "ordering_status": "accepting_orders", "status_updated_at": "2026-11-16T19:58:00Z"},
-  {"branch_id": "1002", "merchant_id": "502", "brand_name_en": "Sample Cafe", "brand_name_ar": "مقهى تجريبي",
-   "branch_name_en": "Al Malqa", "city": "Riyadh", "district": "Al Malqa", "country": "SA",
-   "address_en": "Anas Ibn Malik Road", "lat": 24.8105, "lng": 46.6125, "timezone": "Asia/Riyadh",
-   "opening_hours": {"sun": [{"open": "07:00", "close": "23:00"}], "mon": [{"open": "07:00", "close": "23:00"}],
-                     "tue": [{"open": "07:00", "close": "23:00"}], "wed": [{"open": "07:00", "close": "23:00"}],
-                     "thu": [{"open": "07:00", "close": "23:59"}], "fri": [{"open": "14:00", "close": "23:59"}],
-                     "sat": [{"open": "07:00", "close": "23:59"}]},
-   "ordering_status": "paused", "status_updated_at": "2026-11-16T19:30:00Z"}
- ]}
+{
+ "statusCode": 200,
+ "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants.",
+ "server_time": "2026-11-16T20:00:00.000Z",
+ "data_as_of": "2026-11-16T19:55:00.000Z",
+ "data": [
+  {
+   "branch_id": "1001",
+   "merchant_id": "501",
+   "brand_name": {
+    "en": "Sample Grill",
+    "ar": "مشويات تجريبية"
+   },
+   "branch_name": {
+    "en": "Sample Grill - Olaya",
+    "ar": null
+   },
+   "city": {
+    "en": "Riyadh",
+    "ar": "الرياض"
+   },
+   "district": {
+    "en": "Al Olaya",
+    "ar": null
+   },
+   "latitude": 24.69,
+   "longitude": 46.68,
+   "time_zone": "Asia/Riyadh",
+   "opening_hours": [
+    {
+     "day": "sunday",
+     "shifts": [
+      {
+       "open": "12:00",
+       "close": "16:00"
+      },
+      {
+       "open": "18:00",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    },
+    {
+     "day": "monday",
+     "shifts": [
+      {
+       "open": "12:00",
+       "close": "16:00"
+      },
+      {
+       "open": "18:00",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    },
+    {
+     "day": "tuesday",
+     "shifts": [
+      {
+       "open": "12:00",
+       "close": "16:00"
+      },
+      {
+       "open": "18:00",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    },
+    {
+     "day": "wednesday",
+     "shifts": [
+      {
+       "open": "12:00",
+       "close": "16:00"
+      },
+      {
+       "open": "18:00",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    },
+    {
+     "day": "thursday",
+     "shifts": [
+      {
+       "open": "12:00",
+       "close": "16:00"
+      },
+      {
+       "open": "18:00",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    },
+    {
+     "day": "friday",
+     "shifts": [
+      {
+       "open": "13:30",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    },
+    {
+     "day": "saturday",
+     "shifts": [
+      {
+       "open": "12:00",
+       "close": "02:00",
+       "closes_next_day": true
+      }
+     ]
+    }
+   ],
+   "ordering_status": "accepting_orders",
+   "status_updated_at": null,
+   "updated_at": "2026-11-16T19:58:00.000Z"
+  },
+  {
+   "branch_id": "1002",
+   "merchant_id": "502",
+   "brand_name": {
+    "en": "Sample Cafe",
+    "ar": "مقهى تجريبي"
+   },
+   "branch_name": {
+    "en": "Al Malqa",
+    "ar": null
+   },
+   "city": {
+    "en": "Riyadh",
+    "ar": "الرياض"
+   },
+   "district": {
+    "en": "Al Malqa",
+    "ar": null
+   },
+   "latitude": 24.69,
+   "longitude": 46.68,
+   "time_zone": "Asia/Riyadh",
+   "opening_hours": [
+    {
+     "day": "sunday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "monday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "tuesday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "wednesday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "thursday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "24:00"
+      }
+     ]
+    },
+    {
+     "day": "friday",
+     "shifts": [
+      {
+       "open": "14:00",
+       "close": "24:00"
+      }
+     ]
+    },
+    {
+     "day": "saturday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "24:00"
+      }
+     ]
+    }
+   ],
+   "ordering_status": "paused",
+   "status_updated_at": null,
+   "updated_at": "2026-11-16T19:58:00.000Z"
+  },
+  {
+   "branch_id": "1003",
+   "merchant_id": "502",
+   "brand_name": {
+    "en": "Sample Cafe",
+    "ar": "مقهى تجريبي"
+   },
+   "branch_name": {
+    "en": "Sample Cafe Test Branch",
+    "ar": null
+   },
+   "city": {
+    "en": "Riyadh",
+    "ar": "الرياض"
+   },
+   "district": {
+    "en": "Al Malqa",
+    "ar": null
+   },
+   "latitude": 24.69,
+   "longitude": 46.68,
+   "time_zone": "Asia/Riyadh",
+   "opening_hours": [
+    {
+     "day": "sunday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "monday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "tuesday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "wednesday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "thursday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "24:00"
+      }
+     ]
+    },
+    {
+     "day": "friday",
+     "shifts": [
+      {
+       "open": "14:00",
+       "close": "24:00"
+      }
+     ]
+    },
+    {
+     "day": "saturday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "24:00"
+      }
+     ]
+    }
+   ],
+   "ordering_status": "accepting_orders",
+   "status_updated_at": null,
+   "updated_at": "2026-11-16T19:58:00.000Z"
+  }
+ ]
+}

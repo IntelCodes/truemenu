@@ -172,6 +172,9 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
             refusal = "price not verified against the merchant's own source"
         elif _get(it, "vat_status") == "unknown" and os.environ.get("TRUEMENU_VAT_UNKNOWN", "refuse") == "refuse":
             refusal = "the merchant's system does not say whether this price includes VAT, so the total may differ"
+        elif (_get(it, "options_extra_cents") or 0) > 0:
+            refusal = (f"a required choice (such as size) adds at least {_get(it, 'options_extra_cents') / 100:.2f} "
+                       f"{it['currency']}, so this price is only a starting price")
         elif fr["label"] == "stale":
             refusal = f"source stale (last sync {fr['age_s']}s ago, expected every {fr['expected_interval_s']}s)"
         elif not avail["open"]:
@@ -191,6 +194,7 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
                   "usd_equivalent": round(to_usd(it["price_cents"], it["currency"]), 2),
                   "verified": bool(it["price_verified"]), "verified_on": it["verified_on"] or None,
                   "vat": _get(it, "vat_status"),
+                  "required_choices_add": (_get(it, "options_extra_cents") or 0) / 100 or None,
                   "changed_at": it["price_changed_at"]},
         "name_ar": _get(it, "name_ar"), "calories": _get(it, "calories"),
         "availability": avail,

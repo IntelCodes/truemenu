@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -80,7 +81,7 @@ class NugttahTest(unittest.TestCase):
 
     def test_budget_in_dollars_uses_the_peg(self):
         out = self.find(available_at=at("mon", "13:00"), budget_usd_max=11)
-        self.assertEqual(sorted(r["name"] for r in out["results"]), ["Fattoush", "Grilled Chicken Plate"])
+        self.assertEqual(sorted(r["name"] for r in out["results"]), ["Fattoush", "Grilled Chicken Box", "Grilled Chicken Plate"])
 
     def test_pork_tag_from_jurisdiction(self):
         out = self.find(available_at=at("mon", "13:00"), exclude=["pork"])
@@ -94,7 +95,7 @@ class NugttahTest(unittest.TestCase):
 
     def test_freshness_reports_merchant_data_time(self):
         out = self.find(available_at=at("mon", "13:00"))
-        self.assertEqual(out["results"][0]["freshness"]["merchant_data_as_of"], "2026-11-16T19:55:00Z")
+        self.assertEqual(out["results"][0]["freshness"]["merchant_data_as_of"], "2026-11-16T19:55:00.000Z")
         self.assertEqual(out["results"][0]["freshness"]["source"], "nugttah_api")
 
     def test_unknown_vat_is_not_quoted(self):
@@ -103,6 +104,24 @@ class NugttahTest(unittest.TestCase):
         self.assertEqual((kunafa["price"]["amount"], kunafa["price"]["vat"]), (95.0, "unknown"))
         self.assertIsNone(kunafa["quote_id"])
         self.assertIn("VAT", kunafa["quote_refused_reason"])
+
+    def test_paid_required_choice_is_not_quoted(self):
+        out = self.find(available_at=at("mon", "13:00"))
+        box = [r for r in out["results"] if r["name"] == "Grilled Chicken Box"][0]
+        self.assertEqual(box["price"]["required_choices_add"], 4.0)
+        self.assertIsNone(box["quote_id"])
+        plate = [r for r in out["results"] if r["name"] == "Grilled Chicken Plate"][0]
+        self.assertTrue(plate["quote_id"])              # its required sauce has a free option
+
+    def test_deleted_and_blocked_category_items_not_offered(self):
+        names = [r["name"] for r in self.find(available_at=at("mon", "13:00"))["results"]]
+        self.assertNotIn("Garlic Bread", names)           # deleted: true
+        self.assertNotIn("Shawarma Wrap", names)          # its category is not available
+
+    def test_test_branch_skipped(self):
+        with db.connect() as con:
+            self.assertIsNone(con.execute("SELECT 1 FROM merchants WHERE merchant_id='ng-1003'").fetchone())
+        self.assertEqual(nugttah.load_state()["excluded_branches"], ["Sample Cafe Test Branch"])
 
     def test_first_sync_stores_a_cursor(self):
         st = nugttah.load_state()
@@ -145,14 +164,60 @@ class NugttahChangesTest(unittest.TestCase):
     def test_status_change_uses_server_time(self):
         with db.connect() as con:
             m = con.execute("SELECT pos_status, pos_status_at FROM merchants WHERE merchant_id='ng-1002'").fetchone()
-        self.assertEqual((m["pos_status"], m["pos_status_at"]), ("online", "2026-11-18T12:00:20Z"))
+        self.assertEqual((m["pos_status"], m["pos_status_at"]), ("online", "2026-11-18T12:00:20.000Z"))
         self.assertIn("Halloumi Sandwich", [x["name"] for x in self.find()["results"]])
+
+    def test_older_record_ignored(self):
+        r = [x for x in self.find()["results"] if x["name"] == "Fattoush"][0]
+        self.assertEqual(r["price"]["amount"], 18.0)      # the 2026-11-01 copy at 1.00 SAR was older than ours
+
+    def test_deleted_item_on_second_page(self):
+        self.assertNotIn("Lamb Mandi", [x["name"] for x in self.find()["results"]])
 
     def test_cursor_advanced_and_feed_counts_as_fresh(self):
         self.assertEqual(nugttah.load_state()["cursor"], "c2")
         fr = [x for x in self.find()["results"] if x["name"] == "Fattoush"][0]["freshness"]
         self.assertEqual(fr["label"], "fresh")
-        self.assertEqual(fr["merchant_data_as_of"], "2026-11-18T12:00:00Z")
+        self.assertEqual(fr["merchant_data_as_of"], "2026-11-18T12:00:00.000Z")
+
+
+
+class NugttahRecoveryTest(unittest.TestCase):
+    """A rejected cursor starts a full resync; a branch missing from /branches leaves the pilot."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._db, cls._state = config.DB_PATH, config.STATE_DIR
+        config.STATE_DIR = Path(tempfile.mkdtemp(prefix="truemenu-ngr-"))
+        config.DB_PATH = config.STATE_DIR / "truemenu.db"
+        nugttah.sync_all()
+
+    @classmethod
+    def tearDownClass(cls):
+        config.DB_PATH, config.STATE_DIR = cls._db, cls._state
+
+    def test_rejected_cursor_resyncs(self):
+        st = nugttah.load_state()
+        st["cursor"] = "expired"
+        nugttah.save_state(st)
+        nugttah.tick()
+        st = nugttah.load_state()
+        self.assertEqual(st["cursor"], "c0")
+        self.assertTrue(st.get("resync_done_at"))
+
+    def test_branch_left_pilot(self):
+        real = nugttah._get
+
+        def without_1002(path, params=None):
+            out = real(path, params)
+            if path == "/branches":
+                out = dict(out, data=[b for b in out["data"] if b["branch_id"] != "1002"])
+            return out
+        st = nugttah.load_state()
+        events = []
+        with mock.patch.object(nugttah, "_get", without_1002):
+            nugttah._refresh_branches(st, events)
+        self.assertIn({"merchant_id": "ng-1002", "event": "left_pilot", "count": 1}, events)
 
 
 if __name__ == "__main__":

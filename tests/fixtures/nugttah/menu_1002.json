@@ -1,21 +1,45 @@
 {
- "branch_id": "1002",
- "data_as_of": "2026-11-16T19:30:00Z",
- "server_time": "2026-11-16T20:00:00Z",
- "items": [
+ "statusCode": 200,
+ "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants.",
+ "server_time": "2026-11-16T20:00:00.000Z",
+ "data_as_of": "2026-11-16T19:50:00.000Z",
+ "is_full_snapshot": true,
+ "next_updated_since": "2026-11-16T19:59:00.000Z",
+ "categories": [
   {
-   "item_id": "7001",
-   "category": "Sandwich",
-   "name_en": "Halloumi Sandwich",
-   "name_ar": "ساندويتش حلوم",
-   "description_en": "Halloumi, tomato, mint, sourdough",
-   "price": 2600,
-   "currency": "SAR",
-   "vat_inclusive": true,
+   "category_id": "c-sand",
+   "merchant_id": "502",
+   "name": {
+    "en": "Sandwich",
+    "ar": "ساندويتش"
+   },
+   "order": 1,
    "available": true,
-   "calories": 540,
-   "updated_at": "2026-11-01T08:00:00Z"
+   "updated_at": "2026-11-10T08:00:00.000Z"
   }
  ],
- "is_full_snapshot": true
+ "items": [
+  {
+   "item_id": "9101",
+   "merchant_id": "502",
+   "category_id": "c-sand",
+   "name": {
+    "en": "Halloumi Sandwich",
+    "ar": "ساندويتش حلومي"
+   },
+   "description": {
+    "en": "",
+    "ar": ""
+   },
+   "currency": "SAR",
+   "calories": 480,
+   "allergens": null,
+   "deleted": false,
+   "updated_at": "2026-11-10T08:00:00.000Z",
+   "price": 2200,
+   "available": true,
+   "vat_inclusive": true,
+   "option_groups": []
+  }
+ ]
 }

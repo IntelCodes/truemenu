@@ -1,100 +1,220 @@
 {
- "server_time": "2026-11-18T12:00:20Z",
- "data_as_of": "2026-11-18T12:00:00Z",
- "note": "SAMPLE DATA, not real merchants.",
+ "statusCode": 200,
+ "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants.",
+ "server_time": "2026-11-18T12:00:20.000Z",
+ "data_as_of": "2026-11-18T12:00:00.000Z",
+ "has_more": true,
+ "next_cursor": "c1p2",
  "branches": [
   {
    "branch_id": "1002",
    "merchant_id": "502",
-   "brand_name_en": "Sample Cafe",
-   "brand_name_ar": "مقهى تجريبي",
-   "branch_name_en": "Al Malqa",
-   "city": "Riyadh",
-   "district": "Al Malqa",
-   "country": "SA",
-   "address_en": "Anas Ibn Malik Road",
-   "lat": 24.8105,
-   "lng": 46.6125,
-   "timezone": "Asia/Riyadh",
-   "opening_hours": {
-    "sun": [
-     {
-      "open": "07:00",
-      "close": "23:00"
-     }
-    ],
-    "mon": [
-     {
-      "open": "07:00",
-      "close": "23:00"
-     }
-    ],
-    "tue": [
-     {
-      "open": "07:00",
-      "close": "23:00"
-     }
-    ],
-    "wed": [
-     {
-      "open": "07:00",
-      "close": "23:00"
-     }
-    ],
-    "thu": [
-     {
-      "open": "07:00",
-      "close": "23:59"
-     }
-    ],
-    "fri": [
-     {
-      "open": "14:00",
-      "close": "23:59"
-     }
-    ],
-    "sat": [
-     {
-      "open": "07:00",
-      "close": "23:59"
-     }
-    ]
+   "brand_name": {
+    "en": "Sample Cafe",
+    "ar": "مقهى تجريبي"
    },
+   "branch_name": {
+    "en": "Al Malqa",
+    "ar": null
+   },
+   "city": {
+    "en": "Riyadh",
+    "ar": "الرياض"
+   },
+   "district": {
+    "en": "Al Malqa",
+    "ar": null
+   },
+   "latitude": 24.69,
+   "longitude": 46.68,
+   "time_zone": "Asia/Riyadh",
+   "opening_hours": [
+    {
+     "day": "sunday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "monday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "tuesday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "wednesday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "23:00"
+      }
+     ]
+    },
+    {
+     "day": "thursday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "24:00"
+      }
+     ]
+    },
+    {
+     "day": "friday",
+     "shifts": [
+      {
+       "open": "14:00",
+       "close": "24:00"
+      }
+     ]
+    },
+    {
+     "day": "saturday",
+     "shifts": [
+      {
+       "open": "07:00",
+       "close": "24:00"
+      }
+     ]
+    }
+   ],
    "ordering_status": "accepting_orders",
    "status_updated_at": null,
-   "updated_at": "2026-11-18T12:00:05Z"
+   "updated_at": "2026-11-18T12:00:05.000Z"
   }
  ],
+ "categories": [],
  "items": [
   {
    "item_id": "9001",
-   "category": "Main",
-   "name_en": "Grilled Chicken Plate",
-   "name_ar": "صحن دجاج مشوي",
-   "description_en": "Half chicken, grilled vegetables, garlic sauce",
-   "price": 4200,
+   "merchant_id": "501",
+   "category_id": "c-main",
+   "name": {
+    "en": "Grilled Chicken Plate",
+    "ar": "صحن دجاج مشوي"
+   },
+   "description": {
+    "en": "Half chicken, grilled vegetables, garlic sauce",
+    "ar": ""
+   },
    "currency": "SAR",
-   "vat_inclusive": true,
-   "available": true,
    "calories": 720,
-   "updated_at": "2026-11-10T08:00:00Z",
-   "branch_id": "1001"
+   "allergens": null,
+   "deleted": false,
+   "updated_at": "2026-11-18T12:00:00.000Z",
+   "option_groups": [
+    {
+     "group_id": "g-sauce",
+     "name": {
+      "en": "Sauce",
+      "ar": "الصوص"
+     },
+     "required": true,
+     "min": 1,
+     "max": 1,
+     "free_options": 0,
+     "options": [
+      {
+       "option_id": "o-g",
+       "name": {
+        "en": "Garlic",
+        "ar": "ثوم"
+       },
+       "price_change": 0,
+       "unavailable_branch_ids": []
+      },
+      {
+       "option_id": "o-t",
+       "name": {
+        "en": "Tahini",
+        "ar": "طحينة"
+       },
+       "price_change": 200,
+       "unavailable_branch_ids": []
+      }
+     ]
+    }
+   ],
+   "base_price": 3900,
+   "branches": [
+    {
+     "branch_id": "1001",
+     "available": true,
+     "price": 4200,
+     "vat_inclusive": true
+    }
+   ]
   },
   {
    "item_id": "9002",
-   "category": "Main",
-   "name_en": "Mixed Grill with Rice",
-   "name_ar": "مشاوي مشكلة مع رز",
-   "description_en": "Lamb kebab, shish tawook, rice",
-   "price": 5800,
+   "merchant_id": "501",
+   "category_id": "c-main",
+   "name": {
+    "en": "Mixed Grill with Rice",
+    "ar": "مشاوي مشكلة مع رز"
+   },
+   "description": {
+    "en": "Lamb kebab, shish tawook, rice",
+    "ar": ""
+   },
    "currency": "SAR",
-   "vat_inclusive": true,
-   "available": false,
    "calories": 1150,
-   "updated_at": "2026-11-10T08:00:00Z",
-   "branch_id": "1001"
+   "allergens": null,
+   "deleted": false,
+   "updated_at": "2026-11-18T12:00:00.000Z",
+   "option_groups": [],
+   "base_price": 5800,
+   "branches": [
+    {
+     "branch_id": "1001",
+     "available": false,
+     "price": 5800,
+     "vat_inclusive": true
+    }
+   ]
+  },
+  {
+   "item_id": "9003",
+   "merchant_id": "501",
+   "category_id": "c-salad",
+   "name": {
+    "en": "Fattoush",
+    "ar": "فتوش"
+   },
+   "description": {
+    "en": "Lettuce, tomato, cucumber, toasted bread, sumac",
+    "ar": ""
+   },
+   "currency": "SAR",
+   "calories": 240,
+   "allergens": null,
+   "deleted": false,
+   "updated_at": "2026-11-01T00:00:00.000Z",
+   "option_groups": [],
+   "base_price": 1800,
+   "branches": [
+    {
+     "branch_id": "1001",
+     "available": true,
+     "price": 100,
+     "vat_inclusive": true
+    }
+   ]
   }
- ],
- "next_cursor": "c2",
- "has_more": false
+ ]
 }

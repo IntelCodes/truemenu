@@ -1,0 +1,40 @@
+{
+ "statusCode": 200,
+ "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants.",
+ "server_time": "2026-11-18T12:00:21.000Z",
+ "data_as_of": "2026-11-18T12:00:00.000Z",
+ "has_more": false,
+ "next_cursor": "c2",
+ "branches": [],
+ "categories": [],
+ "items": [
+  {
+   "item_id": "9004",
+   "merchant_id": "501",
+   "category_id": "c-main",
+   "name": {
+    "en": "Lamb Mandi",
+    "ar": "مندي لحم"
+   },
+   "description": {
+    "en": "Slow-cooked lamb on spiced rice",
+    "ar": ""
+   },
+   "currency": "SAR",
+   "calories": 1300,
+   "allergens": null,
+   "deleted": true,
+   "updated_at": "2026-11-18T12:00:10.000Z",
+   "option_groups": [],
+   "base_price": 6000,
+   "branches": [
+    {
+     "branch_id": "1001",
+     "available": true,
+     "price": 6000,
+     "vat_inclusive": false
+    }
+   ]
+  }
+ ]
+}
