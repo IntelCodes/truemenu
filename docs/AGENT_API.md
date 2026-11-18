@@ -70,7 +70,7 @@ How to read it:
 - **`freshness.label`:** `fresh` or `aging` are normal. `stale` means TrueMenu has not heard from that restaurant for more than twice its normal update interval, so it will not sign quotes for it.
 - **`constraints.uncertain`:** constraints TrueMenu could not confirm from the menu text. Tell the user, or pick another dish.
 - **`results` empty with `coverage.supported` true:** nothing fits. `dropped` says why (over budget, closed, violates constraints, did not match `include`).
-- **`price.currency`:** `USD` for Kendall Square, `SAR` for Saudi branches. `price.vat` says whether a SAR price includes VAT: `included`, `added` (TrueMenu added the 15% so the amount is what the customer pays) or `unknown`. An item with `unknown` VAT gets no quote: tell the user the total may be higher. `price.required_choices_add` is set when the item needs a paid choice (such as a size): the amount is only a starting price, so it gets no quote either. `price.usd_equivalent` is for comparison only; show the user the amount in its own currency. Saudi items may also carry `name_ar` and `calories`.
+- **`price.currency`:** `USD` for Kendall Square, `SAR` for Saudi branches. `price.vat` says whether a SAR price includes VAT: `included`, `added` (TrueMenu added the 15% so the amount is what the customer pays) or `unknown` (the merchant's system does not say whether VAT is inside the price or the item is exempt; the amount is still what the customer is charged, so do not state a VAT amount). `price.required_choices_add` is set when the item needs a paid choice (such as a size): the amount is only a starting price, so it gets no quote either. `price.usd_equivalent` is for comparison only; show the user the amount in its own currency. Saudi items may also carry `name_ar` and `calories`.
 - `category` tells mains (`bowl`, `salad`, `plate`, `main`, `pita`, `pizza`) from `soup`, `starter` and `side`. Results are sorted by price, not by how good a lunch they are, so choosing is your job.
 
 ### 2. `GET /v1/menu/{merchant_id}` (key, scope `read`)
@@ -140,6 +140,6 @@ Tell the user the dish, the restaurant, the price and that the price was verifie
 
 ## Changes
 
-- 2026-11-18: Saudi prices carry `price.vat`. When the merchant's system does not say whether a price includes VAT, TrueMenu refuses to quote it (`quote_refused_reason` says so) instead of guessing. Nugttah data now arrives through a change feed every 20 seconds. Items that need a paid required choice are not quoted (`price.required_choices_add`).
+- 2026-11-18: Saudi prices carry `price.vat`; `unknown` means the VAT split is unknown, not the amount charged. Nugttah data now arrives through a change feed every 20 seconds. Items that need a paid required choice are not quoted (`price.required_choices_add`).
 - 2026-11-16 (demo-day branch): Saudi branches from Nugttah's ordering platform (prices in SAR with VAT, Arabic names, calories, split shifts and after-midnight hours). `freshness.merchant_data_as_of` gives the time the merchant's own system last updated the data.
 - 2026-11-16: `find_items` now returns `coverage`, and `near` must be the user's own area. Added after a cold-start test in which an agent asked for Harvard Square got empty results, searched Kendall Square instead without telling the user, and decided to pay for a dish there.

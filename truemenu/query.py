@@ -170,7 +170,7 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
     if issue_quote:
         if not it["price_verified"]:
             refusal = "price not verified against the merchant's own source"
-        elif _get(it, "vat_status") == "unknown" and os.environ.get("TRUEMENU_VAT_UNKNOWN", "refuse") == "refuse":
+        elif _get(it, "vat_status") == "unknown" and os.environ.get("TRUEMENU_VAT_UNKNOWN", "quote") == "refuse":
             refusal = "the merchant's system does not say whether this price includes VAT, so the total may differ"
         elif (_get(it, "options_extra_cents") or 0) > 0:
             refusal = (f"a required choice (such as size) adds at least {_get(it, 'options_extra_cents') / 100:.2f} "

@@ -98,12 +98,15 @@ class NugttahTest(unittest.TestCase):
         self.assertEqual(out["results"][0]["freshness"]["merchant_data_as_of"], "2026-11-16T19:55:00.000Z")
         self.assertEqual(out["results"][0]["freshness"]["source"], "nugttah_api")
 
-    def test_unknown_vat_is_not_quoted(self):
+    def test_unknown_vat_quoted_at_the_price_charged(self):
+        # Nugttah: when vat_inclusive is null, the price is what the customer sees and is charged.
         out = self.find(available_at=at("mon", "13:00"))
         kunafa = [r for r in out["results"] if r["name"] == "Kunafa Tray"][0]
         self.assertEqual((kunafa["price"]["amount"], kunafa["price"]["vat"]), (95.0, "unknown"))
+        self.assertTrue(kunafa["quote_id"])
+        with mock.patch.dict(os.environ, {"TRUEMENU_VAT_UNKNOWN": "refuse"}):
+            kunafa = [r for r in self.find(available_at=at("mon", "13:00"))["results"] if r["name"] == "Kunafa Tray"][0]
         self.assertIsNone(kunafa["quote_id"])
-        self.assertIn("VAT", kunafa["quote_refused_reason"])
 
     def test_paid_required_choice_is_not_quoted(self):
         out = self.find(available_at=at("mon", "13:00"))
