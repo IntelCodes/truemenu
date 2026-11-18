@@ -1,5 +1,6 @@
 """Constraint queries over the menu store. Deterministic: no model runs at query time."""
 import json
+import os
 import re
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -169,6 +170,8 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
     if issue_quote:
         if not it["price_verified"]:
             refusal = "price not verified against the merchant's own source"
+        elif _get(it, "vat_status") == "unknown" and os.environ.get("TRUEMENU_VAT_UNKNOWN", "refuse") == "refuse":
+            refusal = "the merchant's system does not say whether this price includes VAT, so the total may differ"
         elif fr["label"] == "stale":
             refusal = f"source stale (last sync {fr['age_s']}s ago, expected every {fr['expected_interval_s']}s)"
         elif not avail["open"]:
@@ -187,6 +190,7 @@ def _serialize(con, it, m, src, at, agent, issue_quote):
         "price": {"amount": it["price_cents"] / 100, "currency": it["currency"], "source": "merchant_stated",
                   "usd_equivalent": round(to_usd(it["price_cents"], it["currency"]), 2),
                   "verified": bool(it["price_verified"]), "verified_on": it["verified_on"] or None,
+                  "vat": _get(it, "vat_status"),
                   "changed_at": it["price_changed_at"]},
         "name_ar": _get(it, "name_ar"), "calories": _get(it, "calories"),
         "availability": avail,

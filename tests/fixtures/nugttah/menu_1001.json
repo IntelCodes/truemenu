@@ -1,18 +1,86 @@
-{"branch_id": "1001", "data_as_of": "2026-11-16T19:55:00Z", "server_time": "2026-11-16T20:00:00Z",
+{
+ "branch_id": "1001",
+ "data_as_of": "2026-11-16T19:55:00Z",
+ "server_time": "2026-11-16T20:00:00Z",
  "items": [
-  {"item_id": "9001", "category": "Main", "name_en": "Grilled Chicken Plate", "name_ar": "صحن دجاج مشوي",
-   "description_en": "Half chicken, grilled vegetables, garlic sauce", "price": 3900, "currency": "SAR",
-   "vat_inclusive": true, "available": true, "calories": 720, "updated_at": "2026-11-10T08:00:00Z"},
-  {"item_id": "9002", "category": "Main", "name_en": "Mixed Grill with Rice", "name_ar": "مشاوي مشكلة مع رز",
-   "description_en": "Lamb kebab, shish tawook, rice", "price": 5800, "currency": "SAR",
-   "vat_inclusive": true, "available": true, "calories": 1150, "updated_at": "2026-11-10T08:00:00Z"},
-  {"item_id": "9003", "category": "Salad", "name_en": "Fattoush", "name_ar": "فتوش",
-   "description_en": "Lettuce, tomato, cucumber, toasted bread, sumac", "price": 1800, "currency": "SAR",
-   "vat_inclusive": true, "available": true, "calories": 240, "updated_at": "2026-11-10T08:00:00Z"},
-  {"item_id": "9004", "category": "Main", "name_en": "Lamb Mandi", "name_ar": "مندي لحم",
-   "description_en": "Slow-cooked lamb on spiced rice", "price": 6000, "currency": "SAR",
-   "vat_inclusive": false, "available": true, "calories": 1300, "updated_at": "2026-11-12T08:00:00Z"},
-  {"item_id": "9005", "category": "Side", "name_en": "Hummus", "name_ar": "حمص",
-   "description_en": "", "price": 1500, "currency": "SAR",
-   "vat_inclusive": true, "available": false, "calories": 300, "updated_at": "2026-11-16T12:00:00Z"}
- ]}
+  {
+   "item_id": "9001",
+   "category": "Main",
+   "name_en": "Grilled Chicken Plate",
+   "name_ar": "صحن دجاج مشوي",
+   "description_en": "Half chicken, grilled vegetables, garlic sauce",
+   "price": 3900,
+   "currency": "SAR",
+   "vat_inclusive": true,
+   "available": true,
+   "calories": 720,
+   "updated_at": "2026-11-10T08:00:00Z"
+  },
+  {
+   "item_id": "9002",
+   "category": "Main",
+   "name_en": "Mixed Grill with Rice",
+   "name_ar": "مشاوي مشكلة مع رز",
+   "description_en": "Lamb kebab, shish tawook, rice",
+   "price": 5800,
+   "currency": "SAR",
+   "vat_inclusive": true,
+   "available": true,
+   "calories": 1150,
+   "updated_at": "2026-11-10T08:00:00Z"
+  },
+  {
+   "item_id": "9003",
+   "category": "Salad",
+   "name_en": "Fattoush",
+   "name_ar": "فتوش",
+   "description_en": "Lettuce, tomato, cucumber, toasted bread, sumac",
+   "price": 1800,
+   "currency": "SAR",
+   "vat_inclusive": true,
+   "available": true,
+   "calories": 240,
+   "updated_at": "2026-11-10T08:00:00Z"
+  },
+  {
+   "item_id": "9004",
+   "category": "Main",
+   "name_en": "Lamb Mandi",
+   "name_ar": "مندي لحم",
+   "description_en": "Slow-cooked lamb on spiced rice",
+   "price": 6000,
+   "currency": "SAR",
+   "vat_inclusive": false,
+   "available": true,
+   "calories": 1300,
+   "updated_at": "2026-11-12T08:00:00Z"
+  },
+  {
+   "item_id": "9005",
+   "category": "Side",
+   "name_en": "Hummus",
+   "name_ar": "حمص",
+   "description_en": "",
+   "price": 1500,
+   "currency": "SAR",
+   "vat_inclusive": true,
+   "available": false,
+   "calories": 300,
+   "updated_at": "2026-11-16T12:00:00Z"
+  },
+  {
+   "item_id": "9007",
+   "category": "Dessert",
+   "name_en": "Kunafa Tray",
+   "name_ar": "صينية كنافة",
+   "description_en": "Family tray",
+   "price": 9500,
+   "currency": "SAR",
+   "vat_inclusive": null,
+   "available": true,
+   "calories": 2100,
+   "updated_at": "2026-11-12T08:00:00Z"
+  }
+ ],
+ "is_full_snapshot": true
+}

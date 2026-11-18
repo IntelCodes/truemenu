@@ -62,6 +62,7 @@ MIGRATIONS = [
     ("merchants", "name_ar", "TEXT"),
     ("merchants", "country", "TEXT"),
     ("sources", "merchant_data_as_of", "TEXT"),
+    ("items", "vat_status", "TEXT"),
 ]
 
 

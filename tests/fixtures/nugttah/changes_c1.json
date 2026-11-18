@@ -1,0 +1,100 @@
+{
+ "server_time": "2026-11-18T12:00:20Z",
+ "data_as_of": "2026-11-18T12:00:00Z",
+ "note": "SAMPLE DATA, not real merchants.",
+ "branches": [
+  {
+   "branch_id": "1002",
+   "merchant_id": "502",
+   "brand_name_en": "Sample Cafe",
+   "brand_name_ar": "مقهى تجريبي",
+   "branch_name_en": "Al Malqa",
+   "city": "Riyadh",
+   "district": "Al Malqa",
+   "country": "SA",
+   "address_en": "Anas Ibn Malik Road",
+   "lat": 24.8105,
+   "lng": 46.6125,
+   "timezone": "Asia/Riyadh",
+   "opening_hours": {
+    "sun": [
+     {
+      "open": "07:00",
+      "close": "23:00"
+     }
+    ],
+    "mon": [
+     {
+      "open": "07:00",
+      "close": "23:00"
+     }
+    ],
+    "tue": [
+     {
+      "open": "07:00",
+      "close": "23:00"
+     }
+    ],
+    "wed": [
+     {
+      "open": "07:00",
+      "close": "23:00"
+     }
+    ],
+    "thu": [
+     {
+      "open": "07:00",
+      "close": "23:59"
+     }
+    ],
+    "fri": [
+     {
+      "open": "14:00",
+      "close": "23:59"
+     }
+    ],
+    "sat": [
+     {
+      "open": "07:00",
+      "close": "23:59"
+     }
+    ]
+   },
+   "ordering_status": "accepting_orders",
+   "status_updated_at": null,
+   "updated_at": "2026-11-18T12:00:05Z"
+  }
+ ],
+ "items": [
+  {
+   "item_id": "9001",
+   "category": "Main",
+   "name_en": "Grilled Chicken Plate",
+   "name_ar": "صحن دجاج مشوي",
+   "description_en": "Half chicken, grilled vegetables, garlic sauce",
+   "price": 4200,
+   "currency": "SAR",
+   "vat_inclusive": true,
+   "available": true,
+   "calories": 720,
+   "updated_at": "2026-11-10T08:00:00Z",
+   "branch_id": "1001"
+  },
+  {
+   "item_id": "9002",
+   "category": "Main",
+   "name_en": "Mixed Grill with Rice",
+   "name_ar": "مشاوي مشكلة مع رز",
+   "description_en": "Lamb kebab, shish tawook, rice",
+   "price": 5800,
+   "currency": "SAR",
+   "vat_inclusive": true,
+   "available": false,
+   "calories": 1150,
+   "updated_at": "2026-11-10T08:00:00Z",
+   "branch_id": "1001"
+  }
+ ],
+ "next_cursor": "c2",
+ "has_more": false
+}

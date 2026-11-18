@@ -17,7 +17,7 @@ os.environ.setdefault("TRUEMENU_QUOTE_SECRET", "test-secret-not-used-anywhere-el
 os.environ["NUGTTAH_FIXTURE"] = str(ROOT / "tests" / "fixtures" / "nugttah")
 os.environ.pop("NUGTTAH_API_BASE", None)
 
-from truemenu import config, nugttah, query  # noqa: E402
+from truemenu import config, db, nugttah, query  # noqa: E402
 
 RIYADH = ZoneInfo("Asia/Riyadh")
 
@@ -32,13 +32,14 @@ def at(day, hm):
 class NugttahTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls._db = config.DB_PATH                     # own database, so other test files are unaffected
-        config.DB_PATH = Path(tempfile.mkdtemp(prefix="truemenu-ng-")) / "truemenu.db"
-        nugttah.pull()
+        cls._db, cls._state = config.DB_PATH, config.STATE_DIR   # own database and sync state
+        config.STATE_DIR = Path(tempfile.mkdtemp(prefix="truemenu-ng-"))
+        config.DB_PATH = config.STATE_DIR / "truemenu.db"
+        nugttah.sync_all()
 
     @classmethod
     def tearDownClass(cls):
-        config.DB_PATH = cls._db
+        config.DB_PATH, config.STATE_DIR = cls._db, cls._state
 
     def find(self, **kw):
         p = {"near": "Riyadh", "limit": 25}
@@ -95,6 +96,63 @@ class NugttahTest(unittest.TestCase):
         out = self.find(available_at=at("mon", "13:00"))
         self.assertEqual(out["results"][0]["freshness"]["merchant_data_as_of"], "2026-11-16T19:55:00Z")
         self.assertEqual(out["results"][0]["freshness"]["source"], "nugttah_api")
+
+    def test_unknown_vat_is_not_quoted(self):
+        out = self.find(available_at=at("mon", "13:00"))
+        kunafa = [r for r in out["results"] if r["name"] == "Kunafa Tray"][0]
+        self.assertEqual((kunafa["price"]["amount"], kunafa["price"]["vat"]), (95.0, "unknown"))
+        self.assertIsNone(kunafa["quote_id"])
+        self.assertIn("VAT", kunafa["quote_refused_reason"])
+
+    def test_first_sync_stores_a_cursor(self):
+        st = nugttah.load_state()
+        self.assertEqual(st["cursor"], "c0")
+        self.assertEqual(st["menu_queue"], [])
+        self.assertTrue(st.get("first_sync_done_at"))
+
+
+class NugttahChangesTest(unittest.TestCase):
+    """The change feed: deltas update items without delisting the rest of the menu."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._db, cls._state = config.DB_PATH, config.STATE_DIR
+        config.STATE_DIR = Path(tempfile.mkdtemp(prefix="truemenu-ngc-"))
+        config.DB_PATH = config.STATE_DIR / "truemenu.db"
+        nugttah.sync_all()
+        st = nugttah.load_state()
+        st["cursor"] = "c1"                              # the next /changes page holds three changes
+        nugttah.save_state(st)
+        cls.events = nugttah.tick()
+
+    @classmethod
+    def tearDownClass(cls):
+        config.DB_PATH, config.STATE_DIR = cls._db, cls._state
+
+    def find(self):
+        return query.find_items({"near": "Riyadh", "limit": 25, "available_at": at("mon", "13:00")}, "test")
+
+    def test_price_change_applied(self):
+        r = [x for x in self.find()["results"] if x["name"] == "Grilled Chicken Plate"][0]
+        self.assertEqual(r["price"]["amount"], 42.0)
+        self.assertIn({"item_id": "ng-1001-9001", "event": "price", "from": 39.0, "to": 42.0}, self.events)
+
+    def test_unavailable_item_removed_rest_kept(self):
+        names = [x["name"] for x in self.find()["results"]]
+        self.assertNotIn("Mixed Grill with Rice", names)
+        self.assertIn("Fattoush", names)                 # a delta never delists items it does not mention
+
+    def test_status_change_uses_server_time(self):
+        with db.connect() as con:
+            m = con.execute("SELECT pos_status, pos_status_at FROM merchants WHERE merchant_id='ng-1002'").fetchone()
+        self.assertEqual((m["pos_status"], m["pos_status_at"]), ("online", "2026-11-18T12:00:20Z"))
+        self.assertIn("Halloumi Sandwich", [x["name"] for x in self.find()["results"]])
+
+    def test_cursor_advanced_and_feed_counts_as_fresh(self):
+        self.assertEqual(nugttah.load_state()["cursor"], "c2")
+        fr = [x for x in self.find()["results"] if x["name"] == "Fattoush"][0]["freshness"]
+        self.assertEqual(fr["label"], "fresh")
+        self.assertEqual(fr["merchant_data_as_of"], "2026-11-18T12:00:00Z")
 
 
 if __name__ == "__main__":
