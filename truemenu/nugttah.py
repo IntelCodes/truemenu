@@ -251,8 +251,18 @@ def _item_row(i, merchant_id, branch, categories):
 
 # ---------------------------------------------------------------- writes
 
+def _ts(iso):
+    return datetime.fromisoformat(iso.replace("Z", "+00:00"))
+
+
 def _newer(incoming, held):
-    return not held or not incoming or incoming >= held
+    """True when the incoming record is the same age or newer (compared as times, not strings)."""
+    if not held or not incoming:
+        return True
+    try:
+        return _ts(incoming) >= _ts(held)
+    except ValueError:
+        return incoming >= held
 
 
 def _upsert_branch(con, b, seen_at):
