@@ -5,6 +5,7 @@
 import os
 import sys
 import tempfile
+import json
 import unittest
 from unittest import mock
 from datetime import datetime
@@ -95,7 +96,7 @@ class NugttahTest(unittest.TestCase):
 
     def test_freshness_reports_merchant_data_time(self):
         out = self.find(available_at=at("mon", "13:00"))
-        self.assertEqual(out["results"][0]["freshness"]["merchant_data_as_of"], "2026-11-16T19:55:00.000Z")
+        self.assertEqual(out["results"][0]["freshness"]["merchant_data_as_of"], "2026-11-16T19:58:00.000Z")
         self.assertEqual(out["results"][0]["freshness"]["source"], "nugttah_api")
 
     def test_unknown_vat_quoted_at_the_price_charged(self):
@@ -181,7 +182,7 @@ class NugttahChangesTest(unittest.TestCase):
         self.assertEqual(nugttah.load_state()["cursor"], "c2")
         fr = [x for x in self.find()["results"] if x["name"] == "Fattoush"][0]["freshness"]
         self.assertEqual(fr["label"], "fresh")
-        self.assertEqual(fr["merchant_data_as_of"], "2026-11-18T12:00:00.000Z")
+        self.assertEqual(fr["merchant_data_as_of"], "2026-11-18T12:00:10.000Z")   # newest edit at that branch
 
 
 
@@ -198,6 +199,12 @@ class NugttahRecoveryTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         config.DB_PATH, config.STATE_DIR = cls._db, cls._state
+
+    def test_empty_hours_means_closed(self):
+        # Nugttah: a branch with no opening hours is closed.
+        hours = nugttah._hours([])
+        m = {"tz": "Asia/Riyadh", "hours_json": json.dumps(hours), "pos_status": "online", "hours_verified": 1}
+        self.assertFalse(query.branch_open(m, datetime.fromisoformat(at("mon", "13:00")))["open"])
 
     def test_rejected_cursor_resyncs(self):
         st = nugttah.load_state()

@@ -325,15 +325,19 @@ def _upsert_item(con, it, mid, t, events, new_items):
     return it["item_id"]
 
 
-def _touch_source(con, mid, t, changed, data_as_of=None):
-    src = con.execute("SELECT last_change_at FROM sources WHERE merchant_id=?", (mid,)).fetchone()
+def _touch_source(con, mid, t, changed, edited_at=None):
+    """edited_at: the newest updated_at seen for this branch, i.e. when the merchant last edited it.
+    Not Nugttah's data_as_of, which is the oldest record across every merchant on the key."""
+    src = con.execute("SELECT last_change_at, merchant_data_as_of FROM sources WHERE merchant_id=?", (mid,)).fetchone()
+    if src and src["merchant_data_as_of"] and not _newer(edited_at, src["merchant_data_as_of"]):
+        edited_at = src["merchant_data_as_of"]
     con.execute(
         "INSERT INTO sources(merchant_id,kind,expected_interval_s,last_pull_at,last_change_at,pulls,merchant_data_as_of) "
         "VALUES(?,?,?,?,?,1,?) ON CONFLICT(merchant_id) DO UPDATE SET kind=excluded.kind, "
         "expected_interval_s=excluded.expected_interval_s, last_pull_at=excluded.last_pull_at, "
         "last_change_at=excluded.last_change_at, pulls=sources.pulls+1, "
         "merchant_data_as_of=COALESCE(excluded.merchant_data_as_of, sources.merchant_data_as_of)",
-        (mid, "nugttah_api", interval(), t, t if (changed or not src) else src["last_change_at"], data_as_of))
+        (mid, "nugttah_api", interval(), t, t if (changed or not src) else src["last_change_at"], edited_at))
 
 
 def _remember_categories(st, cats):
@@ -351,7 +355,11 @@ def _apply_menu(con, st, menu, bid, t, events, new_items):
     _remember_categories(st, menu.get("categories"))
     n_before = len(events)
     seen = set()
+    row = con.execute("SELECT src_updated_at FROM merchants WHERE merchant_id=?", (mid,)).fetchone()
+    stamps = [row["src_updated_at"]] if row and row["src_updated_at"] else []
     for raw in menu.get("items", []):
+        if raw.get("updated_at"):
+            stamps.append(raw["updated_at"])
         it = _item_row(raw, mid, {**raw, "branch_id": bid}, st.get("categories", {}))
         x = _upsert_item(con, it, mid, t, events, new_items)
         if x:
@@ -361,7 +369,7 @@ def _apply_menu(con, st, menu, bid, t, events, new_items):
                           f"({','.join('?' * len(seen)) or 'NULL'})", (mid, *seen))
         if cur.rowcount:
             events.append({"merchant_id": mid, "event": "delisted", "count": cur.rowcount})
-    _touch_source(con, mid, t, len(events) > n_before, menu.get("data_as_of"))
+    _touch_source(con, mid, t, len(events) > n_before, max(stamps, key=_ts) if stamps else None)
 
 
 def _keep(b):
@@ -424,7 +432,7 @@ def _apply_changes_page(st, resp, events, new_items):
     seen_at = resp.get("server_time") or _now()
     t = _now()
     _remember_categories(st, resp.get("categories"))
-    touched = set()
+    touched = {}
     with db.connect() as con:
         for b in resp.get("branches") or []:
             if _keep(b):
@@ -440,17 +448,16 @@ def _apply_changes_page(st, resp, events, new_items):
                 n = len(events)
                 _upsert_item(con, _item_row(raw, mid, br, st.get("categories", {})), mid, t, events, new_items)
                 if len(events) > n:
-                    touched.add(mid)
-        for mid in touched:
-            _touch_source(con, mid, t, True)
+                    touched[mid] = max(filter(None, [touched.get(mid), raw.get("updated_at")]), key=_ts, default=None)
+        for mid, edited in touched.items():
+            _touch_source(con, mid, t, True, edited)
 
 
-def _heartbeat(data_as_of=None):
+def _heartbeat():
     """A successful /changes pass means every loaded branch is current as of now."""
     with db.connect() as con:
-        con.execute("UPDATE sources SET last_pull_at=?, pulls=pulls+1, expected_interval_s=?, "
-                    "merchant_data_as_of=COALESCE(?, merchant_data_as_of) WHERE merchant_id LIKE ?",
-                    (_now(), interval(), data_as_of, PREFIX + "%"))
+        con.execute("UPDATE sources SET last_pull_at=?, pulls=pulls+1, expected_interval_s=? WHERE merchant_id LIKE ?",
+                    (_now(), interval(), PREFIX + "%"))
 
 
 def _changes_pass(st, events, new_items):
@@ -463,7 +470,7 @@ def _changes_pass(st, events, new_items):
         if not resp.get("has_more"):
             st["cursor"], st["changes_ok_at"] = cursor, _now()
             save_state(st)
-            _heartbeat(resp.get("data_as_of"))
+            _heartbeat()
             return True
     return False                                   # pass not finished: retry from the saved cursor next tick
 

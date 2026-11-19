@@ -141,5 +141,5 @@ Tell the user the dish, the restaurant, the price and that the price was verifie
 ## Changes
 
 - 2026-11-18: Saudi prices carry `price.vat`; `unknown` means the VAT split is unknown, not the amount charged. Nugttah data now arrives through a change feed every 20 seconds. Items that need a paid required choice are not quoted (`price.required_choices_add`).
-- 2026-11-16 (demo-day branch): Saudi branches from Nugttah's ordering platform (prices in SAR with VAT, Arabic names, calories, split shifts and after-midnight hours). `freshness.merchant_data_as_of` gives the time the merchant's own system last updated the data.
+- 2026-11-16 (demo-day branch): Saudi branches from Nugttah's ordering platform (prices in SAR with VAT, Arabic names, calories, split shifts and after-midnight hours). `freshness.merchant_data_as_of` gives the last time the merchant edited this branch's menu or details in their own system (it can be weeks old for a menu that rarely changes; freshness itself comes from the live feed).
 - 2026-11-16: `find_items` now returns `coverage`, and `near` must be the user's own area. Added after a cold-start test in which an agent asked for Harvard Square got empty results, searched Kendall Square instead without telling the user, and decided to pay for a dish there.
