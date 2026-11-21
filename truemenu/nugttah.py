@@ -138,11 +138,18 @@ def _fixture(path, params):
         name = f"menu_{path.split('/')[2]}.json"
         if not (fx / name).exists():
             return None                                   # like a 404: not in the pilot
-    return json.loads((fx / name).read_text(encoding="utf-8"))
+    return _unwrap(json.loads((fx / name).read_text(encoding="utf-8")))
+
+
+def _unwrap(body):
+    """The live API wraps every payload: {"statusCode", "message", "data": {server_time, ...}}."""
+    if isinstance(body, dict) and "statusCode" in body and isinstance(body.get("data"), dict):
+        return body["data"]
+    return body
 
 
 def _get(path, params=None):
-    """JSON body, or None for a menu that answers 404 (branch unknown or not in the pilot)."""
+    """JSON payload, or None for a menu that answers 404 (branch unknown or not in the pilot)."""
     base = os.environ.get("NUGTTAH_API_BASE")
     if not base:
         return _fixture(path, params)
@@ -163,7 +170,7 @@ def _get(path, params=None):
         if r.status_code == 404 and menu:
             return None
         r.raise_for_status()
-        return r.json()
+        return _unwrap(r.json())
     raise RuntimeError(f"Nugttah kept answering 429 on {path}")
 
 

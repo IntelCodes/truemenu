@@ -1,329 +1,335 @@
 {
  "statusCode": 200,
- "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants.",
- "server_time": "2026-11-16T20:00:00.000Z",
- "data_as_of": "2026-11-16T19:55:00.000Z",
- "is_full_snapshot": true,
- "next_updated_since": "2026-11-16T19:59:00.000Z",
- "categories": [
-  {
-   "category_id": "c-main",
-   "merchant_id": "501",
-   "name": {
-    "en": "Main",
-    "ar": "رئيسي"
+ "message": {
+  "en": "Success",
+  "ar": "تم بنجاح"
+ },
+ "data": {
+  "server_time": "2026-11-16T20:00:00.000Z",
+  "data_as_of": "2026-11-16T19:55:00.000Z",
+  "is_full_snapshot": true,
+  "next_updated_since": "2026-11-16T19:59:00.000Z",
+  "categories": [
+   {
+    "category_id": "c-main",
+    "merchant_id": "501",
+    "name": {
+     "en": "Main",
+     "ar": "رئيسي"
+    },
+    "order": 1,
+    "available": true,
+    "updated_at": "2026-11-10T08:00:00.000Z"
    },
-   "order": 1,
-   "available": true,
-   "updated_at": "2026-11-10T08:00:00.000Z"
-  },
-  {
-   "category_id": "c-salad",
-   "merchant_id": "501",
-   "name": {
-    "en": "Salad",
-    "ar": "سلطات"
+   {
+    "category_id": "c-salad",
+    "merchant_id": "501",
+    "name": {
+     "en": "Salad",
+     "ar": "سلطات"
+    },
+    "order": 2,
+    "available": true,
+    "updated_at": "2026-11-10T08:00:00.000Z"
    },
-   "order": 2,
-   "available": true,
-   "updated_at": "2026-11-10T08:00:00.000Z"
-  },
-  {
-   "category_id": "c-side",
-   "merchant_id": "501",
-   "name": {
-    "en": "Side",
-    "ar": "أطباق جانبية"
+   {
+    "category_id": "c-side",
+    "merchant_id": "501",
+    "name": {
+     "en": "Side",
+     "ar": "أطباق جانبية"
+    },
+    "order": 3,
+    "available": true,
+    "updated_at": "2026-11-10T08:00:00.000Z"
    },
-   "order": 3,
-   "available": true,
-   "updated_at": "2026-11-10T08:00:00.000Z"
-  },
-  {
-   "category_id": "c-dessert",
-   "merchant_id": "501",
-   "name": {
-    "en": "Dessert",
-    "ar": "حلى"
+   {
+    "category_id": "c-dessert",
+    "merchant_id": "501",
+    "name": {
+     "en": "Dessert",
+     "ar": "حلى"
+    },
+    "order": 4,
+    "available": true,
+    "updated_at": "2026-11-10T08:00:00.000Z"
    },
-   "order": 4,
-   "available": true,
-   "updated_at": "2026-11-10T08:00:00.000Z"
-  },
-  {
-   "category_id": "c-old",
-   "merchant_id": "501",
-   "name": {
-    "en": "Old menu",
-    "ar": "قديم"
-   },
-   "order": 9,
-   "available": false,
-   "updated_at": "2026-11-10T08:00:00.000Z"
-  }
- ],
- "items": [
-  {
-   "item_id": "9001",
-   "merchant_id": "501",
-   "category_id": "c-main",
-   "name": {
-    "en": "Grilled Chicken Plate",
-    "ar": "صحن دجاج مشوي"
-   },
-   "description": {
-    "en": "Half chicken, grilled vegetables, garlic sauce",
-    "ar": ""
-   },
-   "currency": "SAR",
-   "calories": 720,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 3900,
-   "available": true,
-   "vat_inclusive": true,
-   "option_groups": [
-    {
-     "group_id": "g-sauce",
-     "name": {
-      "en": "Sauce",
-      "ar": "الصوص"
-     },
-     "required": true,
-     "min": 1,
-     "max": 1,
-     "free_options": 0,
-     "options": [
-      {
-       "option_id": "o-g",
-       "name": {
-        "en": "Garlic",
-        "ar": "ثوم"
-       },
-       "price_change": 0,
-       "available": true
+   {
+    "category_id": "c-old",
+    "merchant_id": "501",
+    "name": {
+     "en": "Old menu",
+     "ar": "قديم"
+    },
+    "order": 9,
+    "available": false,
+    "updated_at": "2026-11-10T08:00:00.000Z"
+   }
+  ],
+  "items": [
+   {
+    "item_id": "9001",
+    "merchant_id": "501",
+    "category_id": "c-main",
+    "name": {
+     "en": "Grilled Chicken Plate",
+     "ar": "صحن دجاج مشوي"
+    },
+    "description": {
+     "en": "Half chicken, grilled vegetables, garlic sauce",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": 720,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 3900,
+    "available": true,
+    "vat_inclusive": true,
+    "option_groups": [
+     {
+      "group_id": "g-sauce",
+      "name": {
+       "en": "Sauce",
+       "ar": "الصوص"
       },
-      {
-       "option_id": "o-t",
-       "name": {
-        "en": "Tahini",
-        "ar": "طحينة"
+      "required": true,
+      "min": 1,
+      "max": 1,
+      "free_options": 0,
+      "options": [
+       {
+        "option_id": "o-g",
+        "name": {
+         "en": "Garlic",
+         "ar": "ثوم"
+        },
+        "price_change": 0,
+        "available": true
        },
-       "price_change": 200,
-       "available": true
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "item_id": "9002",
-   "merchant_id": "501",
-   "category_id": "c-main",
-   "name": {
-    "en": "Mixed Grill with Rice",
-    "ar": "مشاوي مشكلة مع رز"
+       {
+        "option_id": "o-t",
+        "name": {
+         "en": "Tahini",
+         "ar": "طحينة"
+        },
+        "price_change": 200,
+        "available": true
+       }
+      ]
+     }
+    ]
    },
-   "description": {
-    "en": "Lamb kebab, shish tawook, rice",
-    "ar": ""
+   {
+    "item_id": "9002",
+    "merchant_id": "501",
+    "category_id": "c-main",
+    "name": {
+     "en": "Mixed Grill with Rice",
+     "ar": "مشاوي مشكلة مع رز"
+    },
+    "description": {
+     "en": "Lamb kebab, shish tawook, rice",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": 1150,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 5800,
+    "available": true,
+    "vat_inclusive": true,
+    "option_groups": []
    },
-   "currency": "SAR",
-   "calories": 1150,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 5800,
-   "available": true,
-   "vat_inclusive": true,
-   "option_groups": []
-  },
-  {
-   "item_id": "9003",
-   "merchant_id": "501",
-   "category_id": "c-salad",
-   "name": {
-    "en": "Fattoush",
-    "ar": "فتوش"
+   {
+    "item_id": "9003",
+    "merchant_id": "501",
+    "category_id": "c-salad",
+    "name": {
+     "en": "Fattoush",
+     "ar": "فتوش"
+    },
+    "description": {
+     "en": "Lettuce, tomato, cucumber, toasted bread, sumac",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": 240,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 1800,
+    "available": true,
+    "vat_inclusive": true,
+    "option_groups": []
    },
-   "description": {
-    "en": "Lettuce, tomato, cucumber, toasted bread, sumac",
-    "ar": ""
+   {
+    "item_id": "9004",
+    "merchant_id": "501",
+    "category_id": "c-main",
+    "name": {
+     "en": "Lamb Mandi",
+     "ar": "مندي لحم"
+    },
+    "description": {
+     "en": "Slow-cooked lamb on spiced rice",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": 1300,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-12T08:00:00.000Z",
+    "price": 6000,
+    "available": true,
+    "vat_inclusive": false,
+    "option_groups": []
    },
-   "currency": "SAR",
-   "calories": 240,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 1800,
-   "available": true,
-   "vat_inclusive": true,
-   "option_groups": []
-  },
-  {
-   "item_id": "9004",
-   "merchant_id": "501",
-   "category_id": "c-main",
-   "name": {
-    "en": "Lamb Mandi",
-    "ar": "مندي لحم"
+   {
+    "item_id": "9005",
+    "merchant_id": "501",
+    "category_id": "c-side",
+    "name": {
+     "en": "Hummus",
+     "ar": "حمص"
+    },
+    "description": {
+     "en": "",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": null,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 1500,
+    "available": false,
+    "vat_inclusive": true,
+    "option_groups": []
    },
-   "description": {
-    "en": "Slow-cooked lamb on spiced rice",
-    "ar": ""
+   {
+    "item_id": "9006",
+    "merchant_id": "501",
+    "category_id": "c-old",
+    "name": {
+     "en": "Shawarma Wrap",
+     "ar": "شاورما"
+    },
+    "description": {
+     "en": "Old menu item",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": null,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 1600,
+    "available": true,
+    "vat_inclusive": true,
+    "option_groups": []
    },
-   "currency": "SAR",
-   "calories": 1300,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-12T08:00:00.000Z",
-   "price": 6000,
-   "available": true,
-   "vat_inclusive": false,
-   "option_groups": []
-  },
-  {
-   "item_id": "9005",
-   "merchant_id": "501",
-   "category_id": "c-side",
-   "name": {
-    "en": "Hummus",
-    "ar": "حمص"
+   {
+    "item_id": "9007",
+    "merchant_id": "501",
+    "category_id": "c-dessert",
+    "name": {
+     "en": "Kunafa Tray",
+     "ar": "صينية كنافة"
+    },
+    "description": {
+     "en": "Family tray",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": 2100,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 9500,
+    "available": true,
+    "vat_inclusive": null,
+    "option_groups": []
    },
-   "description": {
-    "en": "",
-    "ar": ""
-   },
-   "currency": "SAR",
-   "calories": null,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 1500,
-   "available": false,
-   "vat_inclusive": true,
-   "option_groups": []
-  },
-  {
-   "item_id": "9006",
-   "merchant_id": "501",
-   "category_id": "c-old",
-   "name": {
-    "en": "Shawarma Wrap",
-    "ar": "شاورما"
-   },
-   "description": {
-    "en": "Old menu item",
-    "ar": ""
-   },
-   "currency": "SAR",
-   "calories": null,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 1600,
-   "available": true,
-   "vat_inclusive": true,
-   "option_groups": []
-  },
-  {
-   "item_id": "9007",
-   "merchant_id": "501",
-   "category_id": "c-dessert",
-   "name": {
-    "en": "Kunafa Tray",
-    "ar": "صينية كنافة"
-   },
-   "description": {
-    "en": "Family tray",
-    "ar": ""
-   },
-   "currency": "SAR",
-   "calories": 2100,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 9500,
-   "available": true,
-   "vat_inclusive": null,
-   "option_groups": []
-  },
-  {
-   "item_id": "9008",
-   "merchant_id": "501",
-   "category_id": "c-main",
-   "name": {
-    "en": "Grilled Chicken Box",
-    "ar": "بوكس دجاج"
-   },
-   "description": {
-    "en": "Choose your size",
-    "ar": ""
-   },
-   "currency": "SAR",
-   "calories": null,
-   "allergens": null,
-   "deleted": false,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 3000,
-   "available": true,
-   "vat_inclusive": true,
-   "option_groups": [
-    {
-     "group_id": "g-size",
-     "name": {
-      "en": "Size",
-      "ar": "الحجم"
-     },
-     "required": true,
-     "min": 1,
-     "max": 1,
-     "free_options": 0,
-     "options": [
-      {
-       "option_id": "o-m",
-       "name": {
-        "en": "Medium",
-        "ar": "وسط"
-       },
-       "price_change": 400,
-       "available": true
+   {
+    "item_id": "9008",
+    "merchant_id": "501",
+    "category_id": "c-main",
+    "name": {
+     "en": "Grilled Chicken Box",
+     "ar": "بوكس دجاج"
+    },
+    "description": {
+     "en": "Choose your size",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": null,
+    "allergens": null,
+    "deleted": false,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 3000,
+    "available": true,
+    "vat_inclusive": true,
+    "option_groups": [
+     {
+      "group_id": "g-size",
+      "name": {
+       "en": "Size",
+       "ar": "الحجم"
       },
-      {
-       "option_id": "o-l",
-       "name": {
-        "en": "Large",
-        "ar": "كبير"
+      "required": true,
+      "min": 1,
+      "max": 1,
+      "free_options": 0,
+      "options": [
+       {
+        "option_id": "o-m",
+        "name": {
+         "en": "Medium",
+         "ar": "وسط"
+        },
+        "price_change": 400,
+        "available": true
        },
-       "price_change": 800,
-       "available": true
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "item_id": "9009",
-   "merchant_id": "501",
-   "category_id": "c-side",
-   "name": {
-    "en": "Garlic Bread",
-    "ar": "خبز بالثوم"
+       {
+        "option_id": "o-l",
+        "name": {
+         "en": "Large",
+         "ar": "كبير"
+        },
+        "price_change": 800,
+        "available": true
+       }
+      ]
+     }
+    ]
    },
-   "description": {
-    "en": "",
-    "ar": ""
-   },
-   "currency": "SAR",
-   "calories": null,
-   "allergens": null,
-   "deleted": true,
-   "updated_at": "2026-11-10T08:00:00.000Z",
-   "price": 900,
-   "available": true,
-   "vat_inclusive": true,
-   "option_groups": []
-  }
- ]
+   {
+    "item_id": "9009",
+    "merchant_id": "501",
+    "category_id": "c-side",
+    "name": {
+     "en": "Garlic Bread",
+     "ar": "خبز بالثوم"
+    },
+    "description": {
+     "en": "",
+     "ar": ""
+    },
+    "currency": "SAR",
+    "calories": null,
+    "allergens": null,
+    "deleted": true,
+    "updated_at": "2026-11-10T08:00:00.000Z",
+    "price": 900,
+    "available": true,
+    "vat_inclusive": true,
+    "option_groups": []
+   }
+  ]
+ },
+ "note": "SAMPLE DATA in the shape of Nugttah's TrueMenu Feed API guide (Nov 2026). Not real merchants."
 }
