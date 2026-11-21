@@ -142,9 +142,12 @@ def _fixture(path, params):
 
 
 def _unwrap(body):
-    """The live API wraps every payload: {"statusCode", "message", "data": {server_time, ...}}."""
-    if isinstance(body, dict) and "statusCode" in body and isinstance(body.get("data"), dict):
-        return body["data"]
+    """The live API wraps every payload: {"statusCode", "message", "data": {server_time, ...}}.
+    The menu endpoint names the wrapper "date" instead of "data" (seen 2026-11-20), so accept both."""
+    if isinstance(body, dict) and "statusCode" in body:
+        for key in ("data", "date"):
+            if isinstance(body.get(key), dict):
+                return body[key]
     return body
 
 
