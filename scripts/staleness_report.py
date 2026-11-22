@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """How wrong is a menu copy? Replays the real open/pause switches from the live Nugttah feed. Read-only.
 
-  venv/bin/python scripts/staleness_report.py [logs/feed.log]
+  venv/bin/python scripts/staleness_report.py [logs/feed.log] [--since 2026-11-21T02:28] [--until 2026-11-22T19:46]
+
+--since / --until (UTC) replay one fixed window, so a figure on a slide can be reproduced later.
 
 For every branch it rebuilds when the branch was taking orders and when it was paused, from the switches
 the feed logged. Then it asks: an agent that works from a copy of the branch list refreshed every hour,
@@ -13,10 +15,11 @@ reports TrueMenu's own lag, which is the gap between syncs. Totals only.
 Each copy policy is averaged over 12 refresh start times, so the result does not depend on when the
 copy happened to be taken. Branches with no switches count as always right.
 """
+import argparse
 import sqlite3
 import statistics
 import sys
-from datetime import timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -31,8 +34,19 @@ POLICIES = [("hourly copy", 3600), ("every 6 hours", 6 * 3600), ("daily copy", 2
 
 
 def main():
-    log = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "logs" / "feed.log"
+    ap = argparse.ArgumentParser()
+    ap.add_argument("log", nargs="?", default=str(ROOT / "logs" / "feed.log"))
+    ap.add_argument("--since")
+    ap.add_argument("--until")
+    a = ap.parse_args()
+    log = Path(a.log)
     pulls, events = parse(log)
+    utc = lambda x: datetime.fromisoformat(x).replace(tzinfo=timezone.utc)
+    lo = utc(a.since) if a.since else None
+    hi = utc(a.until) if a.until else None
+    keep = lambda t: (lo is None or t >= lo) and (hi is None or t <= hi)
+    pulls = [p for p in pulls if keep(p)]
+    events = [(t, ev) for t, ev in events if keep(t)]
     if not pulls:
         sys.exit(f"no Nugttah pulls found in {log}")
     start, end = min(pulls), max(pulls)
