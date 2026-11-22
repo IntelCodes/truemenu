@@ -278,8 +278,13 @@ class NugttahVerifyTest(unittest.TestCase):
     def test_stale_data_at_recheck(self):
         r = self.quote("Fattoush")
         mid = r["merchant"]["id"]
+        with db.connect() as con:
+            was = con.execute("SELECT last_pull_at FROM sources WHERE merchant_id=?", (mid,)).fetchone()[0]
         self.set("UPDATE sources SET last_pull_at='2026-01-01T00:00:00+00:00' WHERE merchant_id=?", mid)
-        self.assertEqual(query.verify_quote(r["quote_id"])["verdict"], "data_stale")
+        try:
+            self.assertEqual(query.verify_quote(r["quote_id"])["verdict"], "data_stale")
+        finally:
+            self.set("UPDATE sources SET last_pull_at=? WHERE merchant_id=?", was, mid)
 
     def test_price_change_after_quote(self):
         r = self.quote("Grilled Chicken Plate")
