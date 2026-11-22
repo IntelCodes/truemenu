@@ -54,14 +54,15 @@ button.primary{background:var(--ink);color:#fff}
 <script>
 const token = new URLSearchParams(location.search).get('t') || '';
 const $ = (id) => document.getElementById(id);
+const visitor = 'presenter-' + Math.random().toString(36).slice(2, 12);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 async function act(body) {
-  const r = await fetch('/demo/api/presenter', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({token, ...body})});
+  const r = await fetch('/demo/api/presenter', {method: 'POST', headers: {'content-type': 'application/json', 'x-visitor': visitor}, body: JSON.stringify({token, ...body})});
   if (!r.ok) alert((await r.json().catch(() => ({}))).detail || r.statusText);
   refresh();
 }
 async function refresh() {
-  const s = await fetch('/demo/api/status').then((r) => r.json());
+  const s = await fetch('/demo/api/status', {headers: {'x-visitor': visitor}}).then((r) => r.json());
   $('merchants').innerHTML = s.merchants.map((m) => `<div class="m"><span class="n">${esc(m.name)}</span>
     <span class="age">${m.freshness.age_s}s</span><span class="pill ${m.freshness.label}">${m.freshness.label.toUpperCase()}</span>
     <button data-a="${m.paused ? 'resume' : 'pause'}" data-m="${esc(m.merchant_id)}">${m.paused ? 'Resume feed' : 'Pause feed'}</button></div>`).join('');

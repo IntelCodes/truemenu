@@ -12,6 +12,7 @@ The booth never takes real orders or payments. Presenter token: TRUEMENU_PRESENT
 import hmac
 import json
 import os
+import re
 import threading
 import time
 from collections import defaultdict, deque
@@ -37,19 +38,34 @@ _events = deque(maxlen=30)
 _lock = threading.Lock()
 
 
+VISITOR_RE = re.compile(r"^[A-Za-z0-9-]{8,64}$")
+SHARED_IP_FACTOR = int(os.environ.get("TRUEMENU_DEMO_SHARED_IP_FACTOR", "25"))   # phones behind one Wi-Fi address
+
+
 def _limit(request: Request, per_min=30):
+    """Per-visitor limit, plus a much higher per-address ceiling.
+
+    At a venue, every phone on the Wi-Fi can share one public address, so limiting by address alone would
+    lock out the whole room. Each page sends a random visitor id (X-Visitor); a client without one is
+    limited by its address at the per-visitor rate, as before.
+    """
     ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    vid = request.headers.get("x-visitor") or ""
+    keys = [(f"ip:{ip}", per_min * SHARED_IP_FACTOR), (f"v:{vid}", per_min)] if VISITOR_RE.match(vid) else [(f"ip:{ip}", per_min)]
     now = time.time()
     with _lock:
-        q = _hits[ip]
-        while q and q[0] < now - 60:
-            q.popleft()
-        if len(q) >= per_min:
-            raise HTTPException(429, "too many requests, wait a minute")
-        q.append(now)
+        for key, cap in keys:
+            q = _hits[key]
+            while q and q[0] < now - 60:
+                q.popleft()
+            if len(q) >= cap:
+                raise HTTPException(429, "too many requests, wait a minute")
+        for key, _ in keys:
+            _hits[key].append(now)
 
 
 def _event(kind, text):
+    _status_cache["body"] = None              # the next status read shows this event
     _events.appendleft({"at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "kind": kind, "text": text})
 
 
@@ -145,22 +161,33 @@ def pay(body: Pay, request: Request):
     return {"paid": bool(ok), "verification": v}
 
 
+_status_cache = {"at": 0.0, "body": None}
+STATUS_CACHE_S = 1.5
+
+
 @router.get("/demo/api/status")
 def status(request: Request):
-    _limit(request, per_min=120)
+    _limit(request, per_min=60)
+    with _lock:
+        if _status_cache["body"] is not None and time.time() - _status_cache["at"] < STATUS_CACHE_S:
+            return _status_cache["body"]
     now = datetime.now(timezone.utc)
     ov = feed._load_overrides()
     with db.connect() as con:
         ms = {m["merchant_id"]: m for m in con.execute("SELECT * FROM merchants WHERE synthetic=0 AND area LIKE ?", (f"%{AREA}%",))}
         srcs = {s["merchant_id"]: s for s in con.execute("SELECT * FROM sources")}
+        marks = ",".join("?" * len(ms)) or "''"
         items = [dict(item_id=i["item_id"], name=i["name"], merchant_id=i["merchant_id"], price=i["price_cents"] / 100)
-                 for i in con.execute("SELECT * FROM items WHERE listed=1 ORDER BY merchant_id, name")
-                 if i["merchant_id"] in ms]
+                 for i in con.execute(f"SELECT item_id, name, merchant_id, price_cents FROM items WHERE listed=1 "
+                                      f"AND merchant_id IN ({marks}) ORDER BY merchant_id, name", list(ms))]
     merchants = [{"merchant_id": mid, "name": m["name"], "freshness": query.freshness(srcs[mid], now),
                   "open_now": query.branch_open(m, now)["open"], "paused": mid in ov.get("paused_sources", [])}
                  for mid, m in ms.items() if mid in srcs]
-    return {"at": now.isoformat(timespec="seconds"), "merchants": merchants, "items": items,
+    body = {"at": now.isoformat(timespec="seconds"), "merchants": merchants, "items": items,
             "price_overrides": ov.get("prices", {}), "events": list(_events)[:12]}
+    with _lock:
+        _status_cache.update(at=time.time(), body=body)
+    return body
 
 
 def _check_token(t):

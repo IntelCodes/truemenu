@@ -26,6 +26,7 @@ app.include_router(booth.router)
 # service can be reviewed afterwards. Bodies are capped; responses are summarised, not stored whole.
 REQUEST_LOG = Path(os.environ.get("TRUEMENU_REQUEST_LOG", config.ROOT / "logs" / "requests.jsonl"))
 RATE_LIMIT_PER_MIN = int(os.environ.get("TRUEMENU_RATE_LIMIT_PER_MIN", "60"))
+DEMO_IP_LIMIT_PER_MIN = int(os.environ.get("TRUEMENU_DEMO_IP_LIMIT_PER_MIN", "3000"))
 _hits = defaultdict(deque)
 _log_lock = threading.Lock()
 
@@ -54,12 +55,16 @@ async def log_and_limit(request: Request, call_next):
     info = config.agent_keys().get(key)
     who = info["agent"] if info else ("anonymous" if not key else "unknown-key")
     client = request.headers.get("x-forwarded-for", request.client.host if request.client else "?").split(",")[0]
-    bucket = _hits[who if info else f"ip:{client}"]
+    booth = request.url.path == "/demo" or request.url.path.startswith("/demo/")
+    # The booth limits each visitor itself; here it only gets a high ceiling per address, because a whole
+    # room of phones on one Wi-Fi can share a single public address.
+    bucket = _hits[f"demo-ip:{client}" if booth else (who if info else f"ip:{client}")]
+    cap = DEMO_IP_LIMIT_PER_MIN if booth else RATE_LIMIT_PER_MIN
     now = time.time()
     while bucket and now - bucket[0] > 60:
         bucket.popleft()
     body = await request.body()
-    if len(bucket) >= RATE_LIMIT_PER_MIN:
+    if len(bucket) >= cap:
         response, data = JSONResponse({"detail": "rate limit exceeded"}, status_code=429), None
     else:
         bucket.append(now)
