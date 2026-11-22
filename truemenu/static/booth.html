@@ -190,7 +190,7 @@ function render(res) {
 async function tick() {
   if (!current) return;
   const left = Math.max(0, quoteExp - Date.now());
-  $('quote').textContent = left ? 'Signed · valid ' + Math.floor(left / 60000) + ':' + String(Math.floor(left / 1000) % 60).padStart(2, '0') : 'Expired';
+  $('quote').textContent = left ? 'Signed · ' + Math.floor(left / 60000) + ':' + String(Math.floor(left / 1000) % 60).padStart(2, '0') + ' left' : 'Expired';
   if (left && !document.hidden && Date.now() % 5000 < 1000) {   // poll only while the quote is live and the page is visible
     try {
       const s = await fetch('/demo/api/status', {headers: {'x-visitor': visitor}}).then((r) => r.json());
