@@ -66,3 +66,29 @@ class BoothVenueTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BoothRecheckEndToEndTest(unittest.TestCase):
+    """The same six cases scripts/verify_live.py runs on the server, through the app in-process."""
+
+    def test_every_change_after_the_quote_blocks_payment(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import verify_live
+        from truemenu import feed
+        c = TestClient(server.app)
+        visitor = {"x-visitor": "verify-test-0001", **VENUE}
+
+        def post(path, body):
+            booth._hits.clear(); server._hits.clear()
+            return c.post(path, json=body, headers=visitor).json()
+
+        def make_stale(mid):                      # instead of waiting two sync intervals
+            with db.connect() as con:
+                con.execute("UPDATE sources SET last_pull_at='2000-01-01T00:00:00+00:00' WHERE merchant_id=?", (mid,))
+
+        feed._save_overrides({"prices": {}, "status": {}, "paused_sources": [], "sold_out": []})
+        res = verify_live.run(post, make_stale=make_stale, say=lambda *_: None)
+        self.assertEqual([c for c, _, _ in res], verify_live.CASES)
+        for case, ok, detail in res:
+            self.assertTrue(ok, f"{case}: {detail}")
+        self.assertEqual(feed._load_overrides()["sold_out"], [])          # overrides put back

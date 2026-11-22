@@ -62,7 +62,10 @@ the next feed sync, no restart needed. A row with `verified=no` is shown but nev
 | `./feed status` | freshness of each source |
 | `./feed set-price ITEM 13.50` then `./feed once` | simulate the merchant changing a price |
 | `./feed pause-source cava-kendall` / `resume-source` | stop one source syncing so it goes stale |
+| `./feed sold-out ITEM` / `on-sale ITEM` | simulate the restaurant switching a dish off or back on |
 | `./feed clear` | remove all simulated changes |
+| `venv/bin/python scripts/verify_live.py` | on the server: one valid quote is paid, and a price change, a dish off sale, a paused restaurant and stale data each block payment |
+| `bash deploy.sh <sha>` / `bash deploy.sh --rollback` | deploy one commit (download, compile, test, switch, health check, automatic rollback) or go back to the previous version |
 | `scripts/reset.sh` | wipe demo state (feedback, quotes) and restart |
 | `scripts/stop.sh` | stop the API and feed |
 

@@ -11,6 +11,7 @@ Commands:
   python -m truemenu.feed stop                    stop the background loop
   python -m truemenu.feed set-price ITEM USD      change a price; applied on the next pull
   python -m truemenu.feed set-status MERCHANT online|paused|busy
+  python -m truemenu.feed sold-out ITEM | on-sale ITEM   switch a dish off or back on
   python -m truemenu.feed pause-source MERCHANT   that source stops syncing (its data goes stale)
   python -m truemenu.feed resume-source MERCHANT
   python -m truemenu.feed clear                   remove all overrides
@@ -35,7 +36,7 @@ def now_iso():
 def _load_overrides():
     if config.OVERRIDES.exists():
         return json.loads(config.OVERRIDES.read_text())
-    return {"prices": {}, "status": {}, "paused_sources": []}
+    return {"prices": {}, "status": {}, "paused_sources": [], "sold_out": []}
 
 
 def _save_overrides(o):
@@ -83,8 +84,11 @@ def pull(merchant_ids=None):
                 events.append({"merchant_id": mid, "event": "status", "from": prev["pos_status"], "to": status})
             changed_any = False
             seen = set()
+            sold_out = set(ov.get("sold_out", []))
             for r in (r for r in rows if r["merchant_id"] == mid):
                 iid = r["item_id"]
+                if iid in sold_out:                 # the restaurant switched it off: left out, so it is unlisted below
+                    continue
                 seen.add(iid)
                 price = ov.get("prices", {}).get(iid, r["price_usd"])
                 cents = int(round(float(price) * 100))
@@ -196,6 +200,14 @@ def main(argv):
     elif cmd == "set-status":
         ov.setdefault("status", {})[args[0]] = args[1]; _save_overrides(ov)
         print(f"override: {args[0]} status -> {args[1]} (applies on next pull)")
+    elif cmd == "sold-out":
+        so = ov.setdefault("sold_out", [])
+        if args[0] not in so:
+            so.append(args[0])
+        _save_overrides(ov); print(f"override: {args[0]} sold out (applies on next pull)")
+    elif cmd == "on-sale":
+        ov["sold_out"] = [x for x in ov.get("sold_out", []) if x != args[0]]
+        _save_overrides(ov); print(f"override: {args[0]} back on sale (applies on next pull)")
     elif cmd == "pause-source":
         ps = ov.setdefault("paused_sources", [])
         if args[0] not in ps:
@@ -205,7 +217,7 @@ def main(argv):
         ov["paused_sources"] = [p for p in ov.get("paused_sources", []) if p != args[0]]
         _save_overrides(ov); print(f"source {args[0]} resumed")
     elif cmd == "clear":
-        _save_overrides({"prices": {}, "status": {}, "paused_sources": []}); print("overrides cleared")
+        _save_overrides({"prices": {}, "status": {}, "paused_sources": [], "sold_out": []}); print("overrides cleared")
     elif cmd == "enrich":
         from . import llm
         llm.load_env_file(os.environ.get("AGENT_MODEL_ENV", "~/hw4/.env"))

@@ -229,7 +229,7 @@ def presenter(body: PresenterAction):
         feed._save_overrides(ov)
         _event("feed", "All restaurant feeds paused: data will go stale in 30 s")
     elif body.action == "reset":
-        feed._save_overrides({"prices": {}, "status": {}, "paused_sources": []})
+        feed._save_overrides({"prices": {}, "status": {}, "paused_sources": [], "sold_out": []})
         feed.pull()
         _event("reset", "Demo reset: original prices, all feeds live")
     else:
