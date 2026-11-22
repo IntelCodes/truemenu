@@ -20,18 +20,19 @@ main() {
   RELEASES=$HOME/truemenu-releases
   DIRS="truemenu scripts agent data docs tests"
   FILES="ask check feed requirements.txt README.md"
-  PORT=${TRUEMENU_PORT:-8088}
   cd "$APP"
+  PORT=$(set -a; . ./.env; echo "${TRUEMENU_PORT:-8088}")    # the port start.sh uses
   mkdir -p "$RELEASES"
 
   if [ "${1:-}" = "--rollback" ]; then
     LAST=$(ls -1d "$RELEASES"/2*/ 2>/dev/null | tail -1)
     [ -n "$LAST" ] || { echo "No earlier version saved in $RELEASES"; exit 1; }
     echo "Rolling back to the version saved in $LAST"
-    swap_in "$LAST" "$RELEASES/rolled-back-$(date -u +%Y%m%dT%H%M%SZ)"
+    AWAY="$RELEASES/rolled-back-$(date -u +%Y%m%dT%H%M%SZ)"
+    swap_in "$LAST" "$AWAY"
     cp -f "$LAST/DEPLOYED_SHA" DEPLOYED_SHA 2>/dev/null || true
-    restart_and_check || { echo "ROLLBACK FAILED HEALTH CHECK: see logs/api.log"; exit 1; }
-    rm -rf "$LAST"
+    restart_and_check || { echo "ROLLBACK FAILED HEALTH CHECK: see logs/api.log (the version rolled away from is in $AWAY)"; exit 1; }
+    rm -rf "$LAST" "$AWAY"
     echo "Rolled back to $(cat DEPLOYED_SHA 2>/dev/null || echo "the earlier version")."
     exit 0
   fi
@@ -72,6 +73,7 @@ main() {
     echo "Checks failed: putting the earlier version back"
     swap_in "$SAVE" "$TMP/failed"
     cp -f "$SAVE/DEPLOYED_SHA" DEPLOYED_SHA
+    rm -rf "$SAVE"
     restart_and_check && echo "Earlier version is running again. Nothing else changed." \
       || echo "EARLIER VERSION ALSO FAILED: see logs/api.log"
     exit 1
