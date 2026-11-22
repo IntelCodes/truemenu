@@ -50,7 +50,7 @@ DAY_KEYS = {"monday": "mon", "tuesday": "tue", "wednesday": "wed", "thursday": "
             "fri": "fri", "sat": "sat", "sun": "sun"}
 # Pork is not sold in Saudi Arabia; the tag is set from the branch's country, not guessed from the name.
 JURISDICTION_TAGS = {"SA": [("contains_pork", 0, 0.99)]}
-DEFAULT_EXCLUDE = r"\b(test|testing|warehouse|lab)\b|تجرب|اختبار|مستودع"
+DEFAULT_EXCLUDE = r"\b(test|testing|warehouse|lab)\b|تجرب|تجارب|اختبار|مستودع|معمل"
 BRANCHES_EVERY_S = 3600
 RECONCILE_EVERY_S = 24 * 3600
 FEED_GAP_S, MENU_GAP_S = 0.6, 1.1          # stay under 120/min (branches + changes) and 60/min (menus)
