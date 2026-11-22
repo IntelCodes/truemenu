@@ -55,7 +55,7 @@ main() {
   ./venv/bin/python -m compileall -q "$TMP/new/truemenu" "$TMP/new/scripts" "$TMP/new/agent" >/dev/null
   ( cd "$TMP/new" && env -i PATH="$PATH" HOME="$TMP" "$APP/venv/bin/python" -m unittest discover -s tests >"$TMP/tests.log" 2>&1 ) \
     || { tail -20 "$TMP/tests.log"; echo "Unit tests failed on the new code; nothing changed"; exit 1; }
-  echo "    $(grep -E '^Ran [0-9]+ tests' "$TMP/tests.log"), all passed"
+  echo "    $(grep -E '^Ran [0-9]+ tests' "$TMP/tests.log"): $(tail -1 "$TMP/tests.log")"
 
   echo "3/5 Saving the running version"
   SAVE="$RELEASES/$(date -u +%Y%m%dT%H%M%SZ)"

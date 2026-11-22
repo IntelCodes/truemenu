@@ -16,7 +16,7 @@ os.environ.setdefault("TRUEMENU_QUOTE_SECRET", "test-secret-not-used-anywhere-el
 try:
     from fastapi.testclient import TestClient
     from truemenu import booth, db, server
-except ImportError as e:                      # pragma: no cover
+except (ImportError, RuntimeError) as e:      # pragma: no cover  (newer starlette raises RuntimeError without its http client)
     raise unittest.SkipTest(f"fastapi test client not installed: {e}")
 
 VENUE = {"x-forwarded-for": "18.0.0.1"}       # one public address for the whole room
