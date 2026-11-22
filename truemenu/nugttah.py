@@ -315,6 +315,8 @@ def _upsert_item(con, it, mid, t, events, new_items):
         events.append({"item_id": it["item_id"], "event": "price", "from": old["price_cents"] / 100, "to": it["price_cents"] / 100})
     if not old:
         new_items.add(it["item_id"])
+    elif not old["listed"]:
+        events.append({"item_id": it["item_id"], "event": "available"})     # back on sale
     con.execute(
         "INSERT INTO items(item_id,merchant_id,name,name_ar,category,description,description_flags,price_cents,currency,"
         "price_verified,verified_on,verified_how,listed,observed_at,price_changed_at,calories,vat_status,options_extra_cents,"

@@ -6,8 +6,8 @@
 Reads the change events the feed loop printed ("pulled nugttah changes [...]") and the current database,
 and prints totals only: no keys, no names, no prices of single items. Notes on what is counted:
   - price: an item's price at a branch changed (Nugttah sends one record per brand item, one entry per branch)
-  - unavailable: an item that was on sale was switched off (sold out or removed). Switching back on is not
-    logged as an event, so this counts "went off", not "came back".
+  - unavailable: an item that was on sale was switched off (sold out or removed)
+  - available: an item came back on sale (logged from 2026-11-22; earlier logs show only "went off")
   - status: a branch switched between accepting orders and paused
   - the first full sync is not counted: loading a menu for the first time is not a change
 """
@@ -70,7 +70,7 @@ def main():
     price = by["price"]
     moves = [(ev["to"] - ev["from"]) / ev["from"] * 100 for _, ev in price if ev.get("from")]
     changed = {ev["item_id"] for _, ev in price} | {ev["item_id"] for _, ev in by["unavailable"]}
-    per_day = Counter(t.date().isoformat() for t, ev in events if ev.get("event") in ("price", "unavailable", "status"))
+    per_day = Counter(t.date().isoformat() for t, ev in events if ev.get("event") in ("price", "unavailable", "available", "status"))
 
     print(f"Window: {start:%Y-%m-%d %H:%M} to {end:%Y-%m-%d %H:%M} UTC ({hours:.1f} h), {len(pulls)} pulls, "
           f"median gap {statistics.median(gaps) if gaps else 0:.0f} s, longest gap {max(gaps) if gaps else 0:.0f} s")
@@ -84,18 +84,21 @@ def main():
     un = by["unavailable"]
     print(f"Went unavailable:     {len(un)} events, {len({e['item_id'] for _, e in un})} branch-items, "
           f"{len({branch_of(e['item_id']) for _, e in un})} branches")
+    av = by["available"]
+    print(f"Back on sale:         {len(av)} events, {len({e['item_id'] for _, e in av})} branch-items, "
+          f"{len({branch_of(e['item_id']) for _, e in av})} branches")
     st = by["status"]
     print(f"Branch open/pause:    {len(st)} switches at {len({e['merchant_id'] for _, e in st})} branches")
-    for k in sorted(set(by) - {"price", "unavailable", "status"}):
+    for k in sorted(set(by) - {"price", "unavailable", "available", "status"}):
         print(f"Other ({k}): {len(by[k])} events")
     print()
     if total_items:
         print(f"Branch-items whose price or availability changed at least once: {len(changed)} of {total_items} "
               f"({len(changed) / total_items * 100:.1f}%)")
     if hours:
-        n = len(price) + len(un) + len(st)
-        print(f"Changes per hour: {n / hours:.1f}  (price {len(price) / hours:.1f}, unavailable {len(un) / hours:.1f}, "
-              f"open/pause {len(st) / hours:.1f})")
+        n = len(price) + len(un) + len(av) + len(st)
+        print(f"Changes per hour: {n / hours:.1f}  (price {len(price) / hours:.1f}, off sale {len(un) / hours:.1f}, "
+              f"back on sale {len(av) / hours:.1f}, open/pause {len(st) / hours:.1f})")
     for d in sorted(per_day):
         print(f"  {d}: {per_day[d]} changes")
 
