@@ -91,11 +91,11 @@ Response:
 {"valid_signature": true, "issued_by_this_service": true, "expired": false,
  "item_id": "a4-butternut-soup", "merchant_id": "area-four-kendall",
  "quoted_price": 7.0, "current_price": 7.0, "price_unchanged": true,
- "current_freshness": "fresh", "issued_at": "2026-11-12T15:16:06+00:00",
- "verdict": "valid"}
+ "current_freshness": "fresh", "on_sale": true, "branch_taking_orders": true,
+ "issued_at": "2026-11-12T15:16:06+00:00", "verdict": "valid"}
 ```
 
-`verdict` is `valid`, `expired` (quotes last 15 minutes) or `price_changed_since_quote`. A forged or altered quote returns `{"valid_signature": false, "reason": "..."}`.
+`verdict` is `valid` only if nothing changed since the quote. Otherwise, in this order: `expired` (quotes last 15 minutes), `unavailable_since_quote` (the dish went off sale), `branch_not_taking_orders` (the restaurant paused ordering), `data_stale` (TrueMenu has not heard from the restaurant recently enough to confirm), or `price_changed_since_quote`. Pay only on `valid`; on anything else, tell the user what changed. A forged or altered quote returns `{"valid_signature": false, "reason": "..."}`.
 
 ### 4. `POST /v1/feedback` (key, scope `feedback`)
 
@@ -140,6 +140,7 @@ Tell the user the dish, the restaurant, the price and that the price was verifie
 
 ## Changes
 
+- 2026-11-22: `verify_quote` fails on more than a price change: the dish went off sale, the restaurant paused ordering, or the data is too stale to confirm. New fields `on_sale` and `branch_taking_orders`.
 - 2026-11-18: Saudi prices carry `price.vat`; `unknown` means the VAT split is unknown, not the amount charged. Nugttah data now arrives through a change feed every 20 seconds. Items that need a paid required choice are not quoted (`price.required_choices_add`).
 - 2026-11-16 (demo-day branch): Saudi branches from Nugttah's ordering platform (prices in SAR with VAT, Arabic names, calories, split shifts and after-midnight hours). `freshness.merchant_data_as_of` gives the last time the merchant edited this branch's menu or details in their own system (it can be weeks old for a menu that rarely changes; freshness itself comes from the live feed).
 - 2026-11-16: `find_items` now returns `coverage`, and `near` must be the user's own area. Added after a cold-start test in which an agent asked for Harvard Square got empty results, searched Kendall Square instead without telling the user, and decided to pay for a dish there.

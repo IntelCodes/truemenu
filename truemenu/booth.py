@@ -154,7 +154,10 @@ def pay(body: Pay, request: Request):
         _event("paid", f"Paid ${v['quoted_price']:.2f} for {dish} (simulated): quote valid")
     else:
         why = {"price_changed_since_quote": f"price changed to ${v.get('current_price', 0):.2f} after the quote",
-               "expired": "quote expired"}.get(v.get("verdict"), v.get("reason") or "quote not valid")
+               "expired": "quote expired",
+               "unavailable_since_quote": "the dish went off sale after the quote",
+               "branch_not_taking_orders": "the restaurant paused ordering after the quote",
+               "data_stale": "restaurant data went stale"}.get(v.get("verdict"), v.get("reason") or "quote not valid")
         if v.get("valid_signature") and v.get("verdict") == "valid":
             why = "restaurant data went stale"
         _event("blocked", f"Payment blocked for {dish}: {why}")

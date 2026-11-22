@@ -147,7 +147,7 @@ def agent_card():
                         "coverage{requested_area,supported,covered_areas,message}"},
             {"name": "get_menu", "method": "GET", "path": "/v1/menu/{merchant_id}"},
             {"name": "verify_quote", "method": "POST", "path": "/v1/verify_quote", "input": VerifyQuote.model_json_schema(),
-             "returns": "valid_signature, expired, quoted_price, current_price, price_unchanged, verdict"},
+             "returns": "valid_signature, expired, quoted_price, current_price, price_unchanged, on_sale, branch_taking_orders, current_freshness, verdict"},
             {"name": "record_feedback", "method": "POST", "path": "/v1/feedback", "input": Feedback.model_json_schema()},
         ],
         "guarantees": [

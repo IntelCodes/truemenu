@@ -230,5 +230,65 @@ class NugttahRecoveryTest(unittest.TestCase):
         self.assertIn({"merchant_id": "ng-1002", "event": "left_pilot", "count": 1}, events)
 
 
+class NugttahVerifyTest(unittest.TestCase):
+    """The recheck before payment fails on any change since the quote, not only the price."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._db, cls._state = config.DB_PATH, config.STATE_DIR
+        config.STATE_DIR = Path(tempfile.mkdtemp(prefix="truemenu-ngv-"))
+        config.DB_PATH = config.STATE_DIR / "truemenu.db"
+        nugttah.sync_all()
+
+    @classmethod
+    def tearDownClass(cls):
+        config.DB_PATH, config.STATE_DIR = cls._db, cls._state
+
+    def quote(self, name):
+        out = query.find_items({"near": "Riyadh", "limit": 25, "available_at": at("mon", "13:00")}, "test")
+        r = [x for x in out["results"] if x["name"] == name][0]
+        self.assertTrue(r["quote_id"])
+        return r
+
+    def set(self, sql, *args):
+        with db.connect() as con:
+            con.execute(sql, args)
+
+    def test_valid_when_nothing_changed(self):
+        v = query.verify_quote(self.quote("Fattoush")["quote_id"])
+        self.assertEqual((v["verdict"], v["on_sale"], v["branch_taking_orders"]), ("valid", True, True))
+
+    def test_off_sale_after_quote(self):
+        r = self.quote("Grilled Chicken Plate")
+        self.set("UPDATE items SET listed=0 WHERE item_id=?", r["item_id"])
+        try:
+            self.assertEqual(query.verify_quote(r["quote_id"])["verdict"], "unavailable_since_quote")
+        finally:
+            self.set("UPDATE items SET listed=1 WHERE item_id=?", r["item_id"])
+
+    def test_branch_paused_after_quote(self):
+        r = self.quote("Fattoush")
+        mid = r["merchant"]["id"]
+        self.set("UPDATE merchants SET pos_status='paused' WHERE merchant_id=?", mid)
+        try:
+            self.assertEqual(query.verify_quote(r["quote_id"])["verdict"], "branch_not_taking_orders")
+        finally:
+            self.set("UPDATE merchants SET pos_status='online' WHERE merchant_id=?", mid)
+
+    def test_stale_data_at_recheck(self):
+        r = self.quote("Fattoush")
+        mid = r["merchant"]["id"]
+        self.set("UPDATE sources SET last_pull_at='2026-01-01T00:00:00+00:00' WHERE merchant_id=?", mid)
+        self.assertEqual(query.verify_quote(r["quote_id"])["verdict"], "data_stale")
+
+    def test_price_change_after_quote(self):
+        r = self.quote("Grilled Chicken Plate")
+        self.set("UPDATE items SET price_cents=price_cents+100 WHERE item_id=?", r["item_id"])
+        try:
+            self.assertEqual(query.verify_quote(r["quote_id"])["verdict"], "price_changed_since_quote")
+        finally:
+            self.set("UPDATE items SET price_cents=price_cents-100 WHERE item_id=?", r["item_id"])
+
+
 if __name__ == "__main__":
     unittest.main()

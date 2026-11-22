@@ -301,14 +301,28 @@ def verify_quote(quote_id):
     with db.connect() as con:
         it = con.execute("SELECT * FROM items WHERE item_id=?", (payload["item_id"],)).fetchone()
         src = con.execute("SELECT * FROM sources WHERE merchant_id=?", (payload["merchant_id"],)).fetchone()
+        m = con.execute("SELECT pos_status FROM merchants WHERE merchant_id=?", (payload["merchant_id"],)).fetchone()
         logged = con.execute("SELECT 1 FROM quotes WHERE quote_id=?", (quote_id,)).fetchone() is not None
     out["issued_by_this_service"] = logged
     if it:
         out["current_price"] = it["price_cents"] / 100
         out["price_unchanged"] = it["price_cents"] == payload["price_cents"]
         out["current_freshness"] = freshness(src, now)["label"] if src else None
-    out["verdict"] = ("valid" if not out["expired"] and out.get("price_unchanged") else
-                      "expired" if out["expired"] else "price_changed_since_quote")
+    out["on_sale"] = bool(it and it["listed"])
+    out["branch_taking_orders"] = bool(m and m["pos_status"] == "online")
+    # The recheck fails on anything that changed since the quote, not only the price.
+    if out["expired"]:
+        out["verdict"] = "expired"
+    elif not out["on_sale"]:
+        out["verdict"] = "unavailable_since_quote"
+    elif not out["branch_taking_orders"]:
+        out["verdict"] = "branch_not_taking_orders"
+    elif out.get("current_freshness") == "stale":
+        out["verdict"] = "data_stale"
+    elif not out.get("price_unchanged"):
+        out["verdict"] = "price_changed_since_quote"
+    else:
+        out["verdict"] = "valid"
     return out
 
 
